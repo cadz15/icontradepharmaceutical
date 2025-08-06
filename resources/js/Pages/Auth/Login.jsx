@@ -1,100 +1,96 @@
-import Checkbox from '@/Components/Checkbox';
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
-import GuestLayout from '@/Layouts/GuestLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from "@inertiajs/react";
+import { IoKeyOutline } from "react-icons/io5";
 
 export default function Login({ status, canResetPassword }) {
     const { data, setData, post, processing, errors, reset } = useForm({
-        email: '',
-        password: '',
+        email: "",
+        password: "",
         remember: false,
     });
 
     const submit = (e) => {
         e.preventDefault();
 
-        post(route('login'), {
-            onFinish: () => reset('password'),
+        post(route("login"), {
+            onFinish: () => reset("password"),
         });
     };
 
     return (
-        <GuestLayout>
-            <Head title="Log in" />
-
-            {status && (
-                <div className="mb-4 text-sm font-medium text-green-600">
-                    {status}
+        <>
+            <Head title="Login" />
+            <div className="h-[100vh] flex flex-row">
+                <div className="flex-1 bg-blue-900 text-center hidden md:flex">
+                    <div
+                        className=" m-12 xl:m-16 w-full bg-contain bg-center bg-no-repeat"
+                        style={{
+                            backgroundImage: `url(https://www.tailwindtap.com/assets/common/marketing.svg)`,
+                        }}
+                    ></div>
                 </div>
-            )}
+                <div className="bg-white flex justify-center w-full lg:w-1/3 xl:w-4/12 p-6 lg:p-12">
+                    <div className="flex flex-col items-center">
+                        <div className="text-center">
+                            <h1 className="text-2xl mt-20 xl:mt-32 xl:text-4xl font-extrabold text-blue-900">
+                                Icon Trade Pharmaceutical
+                            </h1>
+                            <p className="text-[12px] text-gray-500">
+                                Hey enter your details to create your account
+                            </p>
+                        </div>
+                        <div className="w-full flex-1 mt-12 lg:mt-20">
+                            <form method="post" onSubmit={submit}>
+                                <div className="mx-auto max-w-xs flex flex-col gap-4">
+                                    {(errors.email || errors.password) && (
+                                        <span className="text-red-600 text-center w-full">
+                                            Wrong email or password!
+                                        </span>
+                                    )}
+                                    <input
+                                        className="w-full px-5 py-3 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
+                                        type="text"
+                                        value={data.email}
+                                        placeholder="Email"
+                                        onChange={(e) =>
+                                            setData("email", e.target.value)
+                                        }
+                                    />
+                                    <input
+                                        className="w-full px-5 py-3 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
+                                        type="password"
+                                        value={data.password}
+                                        placeholder="Password"
+                                        onChange={(e) =>
+                                            setData("password", e.target.value)
+                                        }
+                                    />
 
-            <form onSubmit={submit}>
-                <div>
-                    <InputLabel htmlFor="email" value="Email" />
-
-                    <TextInput
-                        id="email"
-                        type="email"
-                        name="email"
-                        value={data.email}
-                        className="mt-1 block w-full"
-                        autoComplete="username"
-                        isFocused={true}
-                        onChange={(e) => setData('email', e.target.value)}
-                    />
-
-                    <InputError message={errors.email} className="mt-2" />
+                                    <button
+                                        className="mt-5 tracking-wide font-semibold bg-blue-900 text-gray-100 w-full py-4 rounded-lg hover:bg-indigo-700 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none"
+                                        disabled={processing}
+                                    >
+                                        {processing ? (
+                                            <>
+                                                <IoKeyOutline />
+                                                <span className="ml-3">
+                                                    Processing...
+                                                </span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <IoKeyOutline />
+                                                <span className="ml-3">
+                                                    Login
+                                                </span>
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
-
-                    <TextInput
-                        id="password"
-                        type="password"
-                        name="password"
-                        value={data.password}
-                        className="mt-1 block w-full"
-                        autoComplete="current-password"
-                        onChange={(e) => setData('password', e.target.value)}
-                    />
-
-                    <InputError message={errors.password} className="mt-2" />
-                </div>
-
-                <div className="mt-4 block">
-                    <label className="flex items-center">
-                        <Checkbox
-                            name="remember"
-                            checked={data.remember}
-                            onChange={(e) =>
-                                setData('remember', e.target.checked)
-                            }
-                        />
-                        <span className="ms-2 text-sm text-gray-600">
-                            Remember me
-                        </span>
-                    </label>
-                </div>
-
-                <div className="mt-4 flex items-center justify-end">
-                    {canResetPassword && (
-                        <Link
-                            href={route('password.request')}
-                            className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                        >
-                            Forgot your password?
-                        </Link>
-                    )}
-
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Log in
-                    </PrimaryButton>
-                </div>
-            </form>
-        </GuestLayout>
+            </div>
+        </>
     );
 }
