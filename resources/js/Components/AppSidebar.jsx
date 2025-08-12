@@ -18,7 +18,7 @@ import { Link, usePage } from "@inertiajs/react";
 import { ChevronRight, Home, Settings2 } from "lucide-react";
 
 import { MdOutlineLocalPharmacy } from "react-icons/md";
-import { FaUserDoctor } from "react-icons/fa6";
+import { FaUserDoctor, FaHandHoldingMedical } from "react-icons/fa6";
 import {
     Collapsible,
     CollapsibleContent,
@@ -41,7 +41,7 @@ const items = [
     {
         title: "Medical Representative",
         route: "medical-rep.index",
-        icon: MdOutlineLocalPharmacy,
+        icon: FaHandHoldingMedical,
         isSingle: true,
     },
     {

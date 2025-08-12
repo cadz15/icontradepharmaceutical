@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\MedicalRepresentative;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class MedicalRepresentativeController extends Controller
 {
@@ -12,7 +13,7 @@ class MedicalRepresentativeController extends Controller
      */
     public function index()
     {
-        //
+        return Inertia::render('Admin/MedicalRep');
     }
 
     /**
