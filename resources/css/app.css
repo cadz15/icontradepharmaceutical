@@ -28,10 +28,11 @@
         --sidebar-foreground: 240 5.3% 26.1%;
         --sidebar-primary: 240 5.9% 10%;
         --sidebar-primary-foreground: 0 0% 98%;
-        --sidebar-accent: 240 4.8% 95.9%;
+        --sidebar-accent: 262.1 83.3% 57.8%;
         --sidebar-accent-foreground: 240 5.9% 10%;
-        --sidebar-border: 220 13% 91%;
+        --sidebar-border: 262.1 83.3% 57.8%;
         --sidebar-ring: 217.2 91.2% 59.8%;
+        --sidebar-active-bg: hsl(258.3 89.5% 66.3%);
         --chart-1: oklch(0.646 0.222 41.116);
         --chart-2: oklch(0.6 0.118 184.704);
         --chart-3: oklch(0.398 0.07 227.392);

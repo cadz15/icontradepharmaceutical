@@ -12,7 +12,8 @@ import { SidebarTrigger } from "./ui/sidebar";
 const Navbar = () => {
     return (
         <header className="flex items-center justify-between p-4 border-b bg-white">
-            <SidebarTrigger className="text-lg" iconSize={26} />
+            {/* <SidebarTrigger className="text-lg " iconSize={26} /> */}
+            <div></div>
 
             <div className="flex items-center space-x-4">
                 <div className="flex space-x-2">
