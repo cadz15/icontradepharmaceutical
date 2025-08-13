@@ -1,15 +1,42 @@
+import AppPagination from "@/Components/AppPagination";
 import CreateMedRep from "@/Components/Modal/Admin/CreateMedRep";
 import { Card, CardContent, CardHeader } from "@/Components/ui/card";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head } from "@inertiajs/react";
-import React from "react";
+import { Head, router, usePage } from "@inertiajs/react";
+import React, { useEffect, useState } from "react";
 import { MdMedicalInformation } from "react-icons/md";
 
 function MedicalRep() {
+    const { medicalReps } = usePage().props;
+
+    const fetchMedicalReps = () => {
+        router.get(
+            route("medical-rep.index"),
+            {},
+            {
+                onSuccess: ({ props }) => {},
+                onError: (error) => {
+                    console.error(
+                        "Error fetching medical representatives:",
+                        error
+                    );
+                },
+            }
+        );
+    };
+
+    const handleNewMedRep = () => {
+        fetchMedicalReps();
+    };
+
+    useEffect(() => {
+        console.log(medicalReps);
+    }, [medicalReps]);
+
     return (
         <AuthenticatedLayout header={"Medical Representatives"}>
             <Head title="Medical Representatives" />
-            <CreateMedRep className="mt-8">
+            <CreateMedRep onCreate={handleNewMedRep} className="mt-8">
                 <MdMedicalInformation size={18} /> Add Med Rep
             </CreateMedRep>
 
@@ -30,22 +57,35 @@ function MedicalRep() {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr className="border-b font-normal">
-                                <td className="p-3">Sample</td>
-                                <td className="p-3">Sample</td>
-                                <td className="p-3">Sample</td>
-                                <td className="p-3">Sample</td>
-                            </tr>
-                            <tr className="border-b font-normal">
-                                <td className="p-3">Sample</td>
-                                <td className="p-3">Sample</td>
-                                <td className="p-3">Sample</td>
-                                <td className="p-3">Sample</td>
-                            </tr>
+                            {medicalReps?.data?.map((medicalRep) => (
+                                <tr
+                                    className="border-b font-normal"
+                                    key={medicalRep.id}
+                                >
+                                    <td className="p-3">{medicalRep.name}</td>
+                                    <td className="p-3">
+                                        {medicalRep.product_app_id ?? (
+                                            <span>Not Available</span>
+                                        )}
+                                    </td>
+                                    <td className="p-3">
+                                        {medicalRep.sales_order_id ?? (
+                                            <span>Not Available</span>
+                                        )}
+                                    </td>
+                                    <td className="p-3">Sample</td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </CardContent>
             </Card>
+
+            <div className="w-full mt-4">
+                {medicalReps?.last_page > 1 && (
+                    <AppPagination paginationData={medicalReps} />
+                )}
+            </div>
         </AuthenticatedLayout>
     );
 }

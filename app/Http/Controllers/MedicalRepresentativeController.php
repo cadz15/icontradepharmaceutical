@@ -13,7 +13,9 @@ class MedicalRepresentativeController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Admin/MedicalRep');
+        $medreps = MedicalRepresentative::latest()->paginate(2);
+
+        return Inertia::render('Admin/MedicalRep', ['medicalReps' => $medreps]);
     }
 
     /**
@@ -29,7 +31,20 @@ class MedicalRepresentativeController extends Controller
             'name' => $validated['name']
         ]);
 
-        return redirect()->route('medical-rep.index');
+        return Inertia::render('Admin/MedicalRep', [
+            'message' => 'Medical Representative created successfully!',
+            'medicalReps' => MedicalRepresentative::all()  // Or any other data you want to pass to the page
+        ]);
+    }
+
+    public function list()
+    {
+        $medreps = MedicalRepresentative::latest()->paginate(15);
+
+        return Inertia::render('Admin/MedicalRep', [
+            'message' => 'Medical Representative fetched!',
+            'medicalReps' => $medreps  // Or any other data you want to pass to the page
+        ]);
     }
 
     /**

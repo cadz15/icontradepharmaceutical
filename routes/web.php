@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\MedicalRepresentativeController;
 use App\Http\Controllers\ProfileController;
+use App\Models\MedicalRepresentative;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -22,6 +23,10 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/medical-representative', [MedicalRepresentativeController::class, 'index'])->name('medical-rep.index');
     Route::post('/medical-representative', [MedicalRepresentativeController::class, 'store'])->name('medical-rep.store');
+});
+
+Route::middleware(['auth'])->prefix('admin-api')->name('admin.api.')->group(function() {
+    Route::get('/medical-list', [MedicalRepresentativeController::class, 'list'])->name('med.rep.list');
 });
 
 require __DIR__.'/auth.php';
