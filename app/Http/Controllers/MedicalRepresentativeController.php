@@ -21,7 +21,15 @@ class MedicalRepresentativeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => ['required', 'string']
+        ]);
+
+        MedicalRepresentative::create([
+            'name' => $validated['name']
+        ]);
+
+        return redirect()->route('medical-rep.index');
     }
 
     /**

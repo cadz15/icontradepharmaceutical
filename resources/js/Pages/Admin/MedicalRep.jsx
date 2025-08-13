@@ -1,3 +1,4 @@
+import CreateMedRep from "@/Components/Modal/Admin/CreateMedRep";
 import { Card, CardContent, CardHeader } from "@/Components/ui/card";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head } from "@inertiajs/react";
@@ -8,9 +9,9 @@ function MedicalRep() {
     return (
         <AuthenticatedLayout header={"Medical Representatives"}>
             <Head title="Medical Representatives" />
-            <button className="flex flex-row items-center gap-2 bg-violet-600 px-5 py-3 mt-8 rounded-md text-white hover:bg-violet-500 ">
+            <CreateMedRep className="mt-8">
                 <MdMedicalInformation size={18} /> Add Med Rep
-            </button>
+            </CreateMedRep>
 
             <Card className="mt-4 p-0">
                 <CardHeader className="p-4">

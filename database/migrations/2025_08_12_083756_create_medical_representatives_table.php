@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('medical_representatives', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->string('product_app_id')->nullable();
+            $table->string('sales_order_app_id')->nullable();
             $table->timestamps();
         });
     }

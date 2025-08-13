@@ -21,6 +21,7 @@ Route::get('/dashboard', function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/medical-representative', [MedicalRepresentativeController::class, 'index'])->name('medical-rep.index');
+    Route::post('/medical-representative', [MedicalRepresentativeController::class, 'store'])->name('medical-rep.store');
 });
 
 require __DIR__.'/auth.php';
