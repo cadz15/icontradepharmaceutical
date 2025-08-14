@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Item;
 use App\Models\ItemImage;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -97,5 +98,16 @@ class ItemController extends Controller
     public function destroy(Item $item)
     {
         //
+    }
+
+
+    public function apiListWithOutImage()
+    {
+        $items = Item::select(['brand_name', 'generic_name', 'milligrams', 'supply', 'catalog_price', 'product_type'])->oldest('brand_name')->get();
+
+        return response()->json([
+            'message' => 'Fetch successfully!',
+            'items' => $items
+        ], Response::HTTP_OK);
     }
 }

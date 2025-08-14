@@ -8,6 +8,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarTrigger } from "./ui/sidebar";
+import { Link } from "@inertiajs/react";
 
 const Navbar = () => {
     return (
@@ -43,21 +44,11 @@ const Navbar = () => {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            {[
-                                "Profile",
-                                "Billing",
-                                "Settings",
-                                "Keyboard Shortcuts",
-                                "Team",
-                                "Invite User",
-                                "GitHub",
-                                "Support",
-                                "Log Out",
-                            ].map((item, idx) => (
-                                <DropdownMenuItem key={idx}>
-                                    {item}
-                                </DropdownMenuItem>
-                            ))}
+                            <DropdownMenuItem>
+                                <Link method="post" href={route("logout")}>
+                                    Logout
+                                </Link>
+                            </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
