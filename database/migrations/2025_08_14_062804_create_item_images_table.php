@@ -11,14 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('medical_representatives', function (Blueprint $table) {
+        Schema::create('item_images', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('api_key');
-            $table->string('product_app_id')->nullable();
-            $table->string('sales_order_app_id')->nullable();
+            $table->bigInteger('item_id');
+            $table->string('link');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -27,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('medical_representatives');
+        Schema::dropIfExists('item_images');
     }
 };

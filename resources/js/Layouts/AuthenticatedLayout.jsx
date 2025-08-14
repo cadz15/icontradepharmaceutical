@@ -16,7 +16,7 @@ export default function AuthenticatedLayout({ header, children }) {
                 <AppSidebar />
                 <main className="w-full">
                     <Navbar />
-                    <div className="py-10 px-6 font-semibold">
+                    <div className="pt-28 pb-12 px-6 font-semibold ">
                         <h1 className="text-2xl">{header}</h1>
                         {children}
                     </div>

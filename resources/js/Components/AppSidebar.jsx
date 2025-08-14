@@ -34,7 +34,7 @@ const items = [
     },
     {
         title: "Doctors/Hospitals",
-        route: "medical-rep.index",
+        route: "customer.index",
         icon: FaUserDoctor,
         isSingle: true,
     },
@@ -46,19 +46,14 @@ const items = [
     },
     {
         title: "Inventory",
-        route: "dashboard",
+        route: "item",
         icon: MdOutlineLocalPharmacy,
         isSingle: false,
         items: [
             {
                 title: "List",
-                url: "#",
-                route: "dashboard",
-            },
-            {
-                title: "Add",
-                url: "#",
-                route: "dashboard",
+                url: route("item.index"),
+                route: "item.index",
             },
             {
                 title: "Report",
@@ -104,6 +99,10 @@ function AppSidebar() {
         return route().current() === routeName;
     };
 
+    const isActiveThruChild = (routeName) => {
+        return route().current().includes(routeName);
+    };
+
     return (
         <Sidebar collapsible="icon">
             <SidebarHeader className="border-b ">
@@ -140,6 +139,9 @@ function AppSidebar() {
                                             <SidebarMenuButton
                                                 size="lg"
                                                 tooltip={item.title}
+                                                isActive={isActiveThruChild(
+                                                    item.route
+                                                )}
                                             >
                                                 {item.icon && (
                                                     <item.icon className="text-lg" />

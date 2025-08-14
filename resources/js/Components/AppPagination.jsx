@@ -32,7 +32,7 @@ function AppPagination({ paginationData }) {
                     <PaginationPrevious href={prev_page_url} />
                 </PaginationItem>
                 {generateLinks().map((page) => (
-                    <PaginationItem>
+                    <PaginationItem key={page}>
                         <PaginationLink
                             href={links[page].url}
                             isActive={links[page].active}

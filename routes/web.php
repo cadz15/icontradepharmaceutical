@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\ItemController;
 use App\Http\Controllers\MedicalRepresentativeController;
 use App\Http\Controllers\ProfileController;
 use App\Models\MedicalRepresentative;
@@ -23,6 +25,15 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/medical-representative', [MedicalRepresentativeController::class, 'index'])->name('medical-rep.index');
     Route::post('/medical-representative', [MedicalRepresentativeController::class, 'store'])->name('medical-rep.store');
+    
+
+    Route::get('/customer', [CustomerController::class, 'index'])->name('customer.index');
+    Route::post('/customer', [CustomerController::class, 'store'])->name('customer.store');
+
+
+    Route::get('/items', [ItemController::class, 'index'])->name('item.index');
+    Route::get('/items/create', [ItemController::class, 'create'])->name('item.create');
+    Route::post('/items/create', [ItemController::class, 'store'])->name('item.store');
 });
 
 Route::middleware(['auth'])->prefix('admin-api')->name('admin.api.')->group(function() {

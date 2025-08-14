@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\MedicalRepresentative;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Str;
 
 class MedicalRepresentativeController extends Controller
 {
@@ -28,7 +29,8 @@ class MedicalRepresentativeController extends Controller
         ]);
 
         MedicalRepresentative::create([
-            'name' => $validated['name']
+            'name' => $validated['name'],
+            'api_key' => Str::random(64)
         ]);
 
         return Inertia::render('Admin/MedicalRep', [

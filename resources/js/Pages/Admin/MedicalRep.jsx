@@ -4,7 +4,13 @@ import { Card, CardContent, CardHeader } from "@/Components/ui/card";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, router, usePage } from "@inertiajs/react";
 import React, { useEffect, useState } from "react";
+import { IoQrCodeOutline } from "react-icons/io5";
 import { MdMedicalInformation } from "react-icons/md";
+import { FiEdit } from "react-icons/fi";
+import { FaRegEye } from "react-icons/fa6";
+import { RiDeleteBinLine } from "react-icons/ri";
+import AppTooltip from "@/Components/AppTooltip";
+import QRModal from "@/Components/Modal/Admin/QRModal";
 
 function MedicalRep() {
     const { medicalReps } = usePage().props;
@@ -73,7 +79,16 @@ function MedicalRep() {
                                             <span>Not Available</span>
                                         )}
                                     </td>
-                                    <td className="p-3">Sample</td>
+                                    <td className="p-3 flex gap-2">
+                                        <AppTooltip title={"View"}>
+                                            <FaRegEye />
+                                        </AppTooltip>
+                                        <FiEdit />
+                                        <QRModal qrValue={medicalRep.api_key}>
+                                            <IoQrCodeOutline />
+                                        </QRModal>
+                                        <RiDeleteBinLine />
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
