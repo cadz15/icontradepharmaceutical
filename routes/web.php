@@ -4,6 +4,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\MedicalRepresentativeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SalesOrderController;
 use App\Models\MedicalRepresentative;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -34,6 +35,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/items', [ItemController::class, 'index'])->name('item.index');
     Route::get('/items/create', [ItemController::class, 'create'])->name('item.create');
     Route::post('/items/create', [ItemController::class, 'store'])->name('item.store');
+
+    Route::get('/sales-orders', [SalesOrderController::class, 'index'])->name('sales.order.index');
 });
 
 Route::middleware(['auth'])->prefix('admin-api')->name('admin.api.')->group(function() {
