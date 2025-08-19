@@ -19,6 +19,7 @@ class SalesOrder extends JsonResource
             'id' => $this->id,
             'customer' => new Customer($this->customer),
             'medical_representative' => new MedicalRepresentative($this->medicalRepresentative),
+            'sales_order_items' => SalesOrderItem::collection($this->saleItems),
             'sales_order_number' => $this->sales_order_number,
             'date_sold' => Carbon::parse($this->date_sold)->format('M d, Y'),
             'total' => $this->total,
