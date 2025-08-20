@@ -121,7 +121,6 @@ function ItemCreate() {
                                 <div className="grid gap-2 w-full">
                                     <Label htmlFor="milligrams">
                                         Milligrams
-                                        <span className="text-red-500">*</span>
                                     </Label>
                                     <Input
                                         id="milligrams"
@@ -137,10 +136,7 @@ function ItemCreate() {
                                     )}
                                 </div>
                                 <div className="grid gap-2 w-full">
-                                    <Label htmlFor="supply">
-                                        Supply
-                                        <span className="text-red-500">*</span>
-                                    </Label>
+                                    <Label htmlFor="supply">Supply</Label>
                                     <Input
                                         id="supply"
                                         name="supply"

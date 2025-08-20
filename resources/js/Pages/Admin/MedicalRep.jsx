@@ -70,12 +70,20 @@ function MedicalRep() {
                                 >
                                     <td className="p-3">{medicalRep.name}</td>
                                     <td className="p-3">
-                                        {medicalRep.product_app_id ?? (
+                                        {medicalRep.sales_order_app_id ? (
+                                            <span className="text-green-800">
+                                                Registered
+                                            </span>
+                                        ) : (
                                             <span>Not Available</span>
                                         )}
                                     </td>
                                     <td className="p-3">
-                                        {medicalRep.sales_order_id ?? (
+                                        {medicalRep.product_app_id ? (
+                                            <span className="text-green-800">
+                                                Registered
+                                            </span>
+                                        ) : (
                                             <span>Not Available</span>
                                         )}
                                     </td>

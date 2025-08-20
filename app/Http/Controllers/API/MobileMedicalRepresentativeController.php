@@ -17,13 +17,19 @@ class MobileMedicalRepresentativeController extends Controller
             'app_key' => ['required', 'string'],
         ]);
 
-        $request->user()->update([
+        $medrep = MedicalRepresentative::where('id', $request->user()->id)->first();
+
+        if(!$medrep) {
+           return response()->json([], Response::HTTP_BAD_REQUEST);
+        }
+
+         $medrep->update([
             'sales_order_app_id' => $validated['app_key']
         ]);
 
         return response()->json([
             'message' => 'App successfully registered!',
-            'data' => new ResourcesMedicalRepresentative($request->user())
+            'data' => new ResourcesMedicalRepresentative($medrep)
         ], Response::HTTP_OK);
     }
 

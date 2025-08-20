@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('brand_name');
             $table->string('generic_name');
-            $table->string('milligrams');
-            $table->string('supply');
+            $table->string('milligrams')->nullable();
+            $table->string('supply')->nullable();
             $table->string('catalog_price');
             $table->string('product_type');
             $table->integer('inventory');
