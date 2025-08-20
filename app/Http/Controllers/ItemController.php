@@ -36,8 +36,8 @@ class ItemController extends Controller
         $validated = $request->validate([
             'brand_name' => ['required', 'string'],
             'generic_name' => ['required', 'string'],
-            'milligrams' => ['sometimes', 'string'],
-            'supply' => ['sometimes', 'string'],
+            'milligrams' => ['sometimes'],
+            'supply' => ['sometimes'],
             'catalog_price' => ['required'],
             'product_type' => ['required'],
             'images' => ['required', 'array'],
