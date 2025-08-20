@@ -35,7 +35,7 @@ class ItemController extends Controller
     {
         $validated = $request->validate([
             'brand_name' => ['required', 'string'],
-            'generic_name' => ['required', 'string'],
+            'generic_name' => ['sometimes'],
             'milligrams' => ['sometimes'],
             'supply' => ['sometimes'],
             'catalog_price' => ['required'],
@@ -48,9 +48,9 @@ class ItemController extends Controller
 
         $item = Item::create([
             'brand_name' => $validated['brand_name'],
-            'generic_name' => $validated['generic_name'],
-            'milligrams' => $validated['milligrams'],
-            'supply' => $validated['supply'],
+            'generic_name' => $request->get('generic_name'),
+            'milligrams' =>$request->get('milligrams'),
+            'supply' =>$request->get('supply'),
             'catalog_price' => $validated['catalog_price'],
             'product_type' => $validated['product_type'],
             'inventory' => 0
