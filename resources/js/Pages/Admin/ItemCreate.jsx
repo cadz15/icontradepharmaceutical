@@ -9,6 +9,13 @@ import {
 import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
 import { Progress } from "@/Components/ui/progress";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/Components/ui/select";
 import { Separator } from "@/Components/ui/separator";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, useForm } from "@inertiajs/react";
@@ -44,6 +51,10 @@ function ItemCreate() {
         setData(name, value);
     };
 
+    const handleSelectChange = (text) => {
+        setData("product_type", text);
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
 
@@ -69,7 +80,7 @@ function ItemCreate() {
 
                     <form className="grid gap-4" onSubmit={handleSubmit}>
                         <CardContent>
-                            <div className="grid gap-2">
+                            <div className="grid gap-2 mb-4">
                                 <Label htmlFor="brand_name">
                                     Brand Name
                                     <span className="text-red-500">*</span>
@@ -87,7 +98,7 @@ function ItemCreate() {
                                     </p>
                                 )}
                             </div>
-                            <div className="grid gap-2">
+                            <div className="grid gap-2 mb-4">
                                 <Label htmlFor="generic_name">
                                     Generic Name
                                     <span className="text-red-500">*</span>
@@ -106,7 +117,7 @@ function ItemCreate() {
                                 )}
                             </div>
 
-                            <div className="flex flex-row gap-4">
+                            <div className="flex flex-row gap-4 mb-4">
                                 <div className="grid gap-2 w-full">
                                     <Label htmlFor="milligrams">
                                         Milligrams
@@ -162,18 +173,31 @@ function ItemCreate() {
                                     )}
                                 </div>
                             </div>
-                            <div className="grid gap-2">
+                            <div className="grid gap-2 mb-4">
                                 <Label htmlFor="product_type">
                                     Product Type
                                     <span className="text-red-500">*</span>
                                 </Label>
-                                <Input
-                                    id="product_type"
-                                    name="product_type"
-                                    placeholder="Non-exclusive / Generic"
+                                <Select
+                                    onValueChange={handleSelectChange}
                                     value={data.product_type}
-                                    onChange={handleChange}
-                                />
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Product Type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value={"non-exclusive"}>
+                                            Non-Exclusive/Generic
+                                        </SelectItem>
+                                        <SelectItem value={"exclusive"}>
+                                            Exclusive
+                                        </SelectItem>
+                                        <SelectItem value={"regulated"}>
+                                            Regulated/Dangerous
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+
                                 {errors.product_type && (
                                     <p className="text-sm text-red-500">
                                         {errors.product_type}
@@ -181,7 +205,7 @@ function ItemCreate() {
                                 )}
                             </div>
                             <Separator />
-                            <div className="flex flex-col gap-2">
+                            <div className="flex flex-col gap-2 mt-4">
                                 <Label>Images</Label>
                                 <span className="text-sm text-gray-500 font-normal">
                                     Select up to 10 images to upload. Supported
@@ -245,7 +269,7 @@ function ItemCreate() {
                             disabled={processing}
                         >
                             <Button type="submit">
-                                {processing ? "Creating..." : "Create"}
+                                {processing ? "Creating..." : "Create Item"}
                             </Button>
                         </CardFooter>
                     </form>

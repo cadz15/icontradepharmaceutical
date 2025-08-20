@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\MobileCustomerController;
 use App\Http\Controllers\API\MobileItemController;
+use App\Http\Controllers\API\MobileMedicalRepresentativeController;
 use App\Http\Controllers\API\MobileSalesOrderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -15,4 +16,9 @@ Route::middleware(['auth.apikey', 'throttle:api-key'])->group(function() {
     Route::post('/customer', [MobileCustomerController::class, 'store']);
     
     Route::get('/items', [MobileItemController::class, 'index']);
+});
+
+
+Route::middleware(['auth.apikeyRegister'])->group(function() {
+    Route::post('/register-so-app', [MobileMedicalRepresentativeController::class, 'register']);
 });

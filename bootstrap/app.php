@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\ApiKeyAuth;
+use App\Http\Middleware\ApiKeyRegister;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -20,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'auth.apikey' => ApiKeyAuth::class,
+            'auth.apikeyRegister' => ApiKeyRegister::class
         ]);
 
         //

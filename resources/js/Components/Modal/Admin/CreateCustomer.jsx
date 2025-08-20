@@ -11,8 +11,36 @@ import {
 } from "@/Components/ui/dialog";
 import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/Components/ui/select";
 import { useForm } from "@inertiajs/react";
 import React, { useState } from "react";
+
+const regions = [
+    "Region 1",
+    "Region 2",
+    "Region 3",
+    "Region 4A",
+    "Region 4B",
+    "Region 5",
+    "Region 6",
+    "Region 7",
+    "Region 8",
+    "Region 9",
+    "Region 10",
+    "Region 11",
+    "Region 12",
+    "CAR",
+    "NCR",
+    "ARMM",
+    "CARAGA",
+    "BARMM",
+];
 
 function CreateCustomer({ className, onCreate, children }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -35,6 +63,10 @@ function CreateCustomer({ className, onCreate, children }) {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setData(name, value);
+    };
+
+    const handleRegionChange = (text) => {
+        setData("region", text);
     };
 
     const handleSubmit = (e) => {
@@ -64,7 +96,7 @@ function CreateCustomer({ className, onCreate, children }) {
                     {children}
                 </Button>
             </DialogTrigger>
-            <DialogContent className="">
+            <DialogContent className="max-h-[calc(100dvh-4rem)] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Create Doctor / Hospital</DialogTitle>
                     <DialogDescription>
@@ -130,13 +162,22 @@ function CreateCustomer({ className, onCreate, children }) {
                             <Label htmlFor="region">
                                 Region<span className="text-red-500">*</span>
                             </Label>
-                            <Input
-                                id="region"
-                                name="region"
-                                placeholder="Region 8"
+                            <Select
+                                onValueChange={handleRegionChange}
                                 value={data.region}
-                                onChange={handleChange}
-                            />
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Region" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {regions.map((region) => (
+                                        <SelectItem key={region} value={region}>
+                                            {region}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+
                             {errors.region && (
                                 <p className="text-sm text-red-500">
                                     {errors.region}
