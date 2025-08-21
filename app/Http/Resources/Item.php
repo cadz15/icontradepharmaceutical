@@ -15,6 +15,7 @@ class Item extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'brand_name' => $this->brand_name,
             'generic_name' => $this->generic_name,
             'milligrams' => $this->milligrams,
