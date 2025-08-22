@@ -31,7 +31,7 @@ class MobileSalesOrderController extends Controller
             'salesOrderNumber'=>  ['required'],
             'dateSold'=>  ['required'],
             'total'=>  ['required'],
-            'remarks'=>  ['required'],
+            'remarks'=>  ['sometimes'],
             'syncDate'=>  ['sometimes'],
             'status'=>  ['required'],
             'items' => ['required', 'array'],
@@ -48,6 +48,8 @@ class MobileSalesOrderController extends Controller
             'items.*.total'=>  ['required'],
         ]);
 
+        $salesItemsIds = [];
+
         try{
             $salesOrder = SalesOrder::create([
                 'customer_id' => $validated['customerId'],
@@ -56,14 +58,14 @@ class MobileSalesOrderController extends Controller
                 'date_sold' => $validated['dateSold'],
                 'total' => $validated['total'],
                 'remarks' => $validated['remarks'],
-                'sync_date' => now(),
+                'sync_date' => now()->format('m/d/Y'),
                 'status' => 'pending',
             ]);
 
             foreach ($validated['items'] as $item) {
-                SalesOrderItem::create([
+                $salesItem = SalesOrderItem::create([
                     'sales_order_id' => $salesOrder->id,
-                    'item_id' => $item['item_id'],
+                    'item_id' => $item['itemId'],
                     'quantity' => $item['quantity'],
                     'promo' => $item['promo'],
                     'discount' => $item['discount'],
@@ -72,10 +74,12 @@ class MobileSalesOrderController extends Controller
                     'remarks' => $item['remarks'],
                     'total' => $item['total']
                 ]);
+
+                array_push($salesItemsIds, [$item['id'] => $salesItem->id]);
             }
         }catch(Exception $ex) {
             return response()->json([
-                'message' => 'Sale order corrupted!'
+                'message' => 'Sale order corrupted!',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
@@ -84,6 +88,8 @@ class MobileSalesOrderController extends Controller
 
         return response()->json([
             'message' => 'Sale Order successfully created!',
+            'salesOrderId' => $salesOrder->id,
+            'salesItemIds' => $salesItemsIds
         ], Response::HTTP_OK);
 
     }

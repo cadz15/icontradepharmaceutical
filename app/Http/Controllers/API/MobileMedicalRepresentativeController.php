@@ -33,6 +33,11 @@ class MobileMedicalRepresentativeController extends Controller
         ], Response::HTTP_OK);
     }
 
+
+    public function ping(Request $request) {
+        return response()->json([]);
+    }
+
     /**
      * Display a listing of the resource.
      */

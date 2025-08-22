@@ -36,7 +36,7 @@ class MobileCustomerController extends Controller
             'pharmacist_name'=> ['sometimes'],
             'prc_id'=> ['sometimes'],
             'prc_validity'=> ['sometimes'],
-            'remarks'=> ['required'],
+            'remarks'=> ['sometimes'],
             'sync_date'=> ['sometimes'],
         ]);
 
@@ -54,7 +54,7 @@ class MobileCustomerController extends Controller
                 'pharmacist_name'=> $request->get('pharmacist_name'),
                 'prc_id'=> $request->get('prc_id'),
                 'prc_validity'=> $request->get('prc_validity'),
-                'remarks'=> $validated['required'],
+                'remarks'=> $validated['remarks'],
                 'sync_date'=> now(),
             ]);
         }catch(Exception $ex) {
