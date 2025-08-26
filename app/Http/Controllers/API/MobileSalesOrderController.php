@@ -52,7 +52,7 @@ class MobileSalesOrderController extends Controller
 
         try{
             $salesOrder = SalesOrder::create([
-                'customer_id' => $validated['customerId'],
+                'customer_id' => $validated['customerOnlineId'],
                 'medical_representative_id' => $request->user()->id,
                 'sales_order_number' => $validated['salesOrderNumber'],
                 'date_sold' => $validated['dateSold'],
