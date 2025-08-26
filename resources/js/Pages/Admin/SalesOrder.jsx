@@ -72,7 +72,7 @@ function SalesOrder() {
                                     </td>
                                     <td className="p-3">{saleOrder.total}</td>
                                     <td className="p-3">
-                                        {saleOrder.medical_representative?.name}
+                                        {saleOrder.medicalRepresentative?.name}
                                     </td>
                                     <td className="p-3">{saleOrder.status}</td>
                                     <td className="p-3">

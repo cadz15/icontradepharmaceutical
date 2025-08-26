@@ -26,36 +26,38 @@ class MobileCustomerController extends Controller
     {
         $validated = $request->validate([
             'name'=> ['required'],
-            'full_address'=> ['required'],
-            'short_address'=> ['required'],
+            'fullAddress'=> ['required'],
+            'shortAddress'=> ['required'],
             'region'=> ['required'],
             'class'=> ['required'],
             'practice'=> ['sometimes'],
-            's3_license'=> ['sometimes'],
-            's3_validity'=> ['sometimes'],
-            'pharmacist_name'=> ['sometimes'],
-            'prc_id'=> ['sometimes'],
-            'prc_validity'=> ['sometimes'],
+            's3License'=> ['sometimes'],
+            's3Validity'=> ['sometimes'],
+            'pharmacistName'=> ['sometimes'],
+            'prcId'=> ['sometimes'],
+            'prcValidity'=> ['sometimes'],
             'remarks'=> ['sometimes'],
             'sync_date'=> ['sometimes'],
         ]);
 
+        
+        $customer = null;
 
         try {
-            Customer::create([
+            $customer = Customer::create([
                 'name'=> $validated['name'],
-                'full_address'=> $validated['full_address'],
-                'short_address'=> $validated['short_address'],
+                'full_address'=> $validated['fullAddress'],
+                'short_address'=> $validated['shortAddress'],
                 'region'=> $validated['region'],
                 'class'=> $validated['class'],
                 'practice'=> $request->get('practice'),
-                's3_license'=> $request->get('s3_license'),
-                's3_validity'=> $request->get('s3_validity'),
-                'pharmacist_name'=> $request->get('pharmacist_name'),
-                'prc_id'=> $request->get('prc_id'),
-                'prc_validity'=> $request->get('prc_validity'),
+                's3_license'=> $request->get('s3License'),
+                's3_validity'=> $request->get('s3Validity'),
+                'pharmacist_name'=> $request->get('pharmacistName'),
+                'prc_id'=> $request->get('prcId'),
+                'prc_validity'=> $request->get('prcValidity'),
                 'remarks'=> $validated['remarks'],
-                'sync_date'=> now(),
+                'sync_date'=> now()->format('m/d/y'),
             ]);
         }catch(Exception $ex) {
             return response()->json([
@@ -65,6 +67,7 @@ class MobileCustomerController extends Controller
         
         return response()->json([
             'message' => 'Customer Successfully created!',
+            'id' => $customer ? $customer->id : null,
         ], Response::HTTP_OK);
     }
 

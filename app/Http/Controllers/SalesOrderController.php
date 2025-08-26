@@ -15,7 +15,7 @@ class SalesOrderController extends Controller
      */
     public function index()
     {
-        $sales = SalesOrder::with(['customer', 'medical_representative'])->latest()->paginate(15);
+        $sales = SalesOrder::with(['customer', 'medicalRepresentative'])->latest()->paginate(15);
 
         return Inertia::render('Admin/SalesOrder', [
             'sales' => $sales
