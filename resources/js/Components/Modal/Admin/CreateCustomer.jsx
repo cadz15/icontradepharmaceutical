@@ -19,7 +19,8 @@ import {
     SelectValue,
 } from "@/Components/ui/select";
 import { useForm } from "@inertiajs/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const regions = [
     "Region 1",
@@ -42,8 +43,15 @@ const regions = [
     "BARMM",
 ];
 
-function CreateCustomer({ className, onCreate, children }) {
-    const { data, setData, post, processing, errors, reset } = useForm({
+function CreateCustomer({
+    className,
+    onCreate,
+    children,
+    updateData = null,
+    showModal,
+    visible,
+}) {
+    const { data, setData, post, put, processing, errors, reset } = useForm({
         name: "",
         full_address: "",
         short_address: "",
@@ -69,39 +77,99 @@ function CreateCustomer({ className, onCreate, children }) {
         setData("region", text);
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        post(route("customer.store"), {
-            data: data,
-            onSuccess: () => {
-                console.log("Customer Created Successfully");
-                reset();
-                setIsOpen(false); // Close the modal after success
-
-                // Call the onCreate callback to notify the parent to refresh the list
-                if (onCreate) {
-                    onCreate();
-                }
-            },
-            onError: (errors) => {
-                console.log("Errors:", errors);
-            },
-        });
+    const handleModalVisibleToggle = (visible) => {
+        setIsOpen(visible);
+        showModal(visible);
     };
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (updateData) {
+            put(route("customer.update", updateData.id), {
+                data: data,
+                onSuccess: () => {
+                    console.log("Customer updated Successfully");
+                    reset();
+                    setIsOpen(false); // Close the modal after success
+                    toast.success("Customer successfully updated!");
+
+                    // Call the onCreate callback to notify the parent to refresh the list
+                    if (onCreate) {
+                        onCreate();
+                    }
+                },
+                onError: (errors) => {
+                    console.log("Errors:", errors);
+                },
+            });
+        } else {
+            post(route("customer.store"), {
+                data: data,
+                onSuccess: () => {
+                    console.log("Customer Created Successfully");
+                    reset();
+                    setIsOpen(false); // Close the modal after success
+                    toast.success("Customer successfully created!");
+
+                    // Call the onCreate callback to notify the parent to refresh the list
+                    if (onCreate) {
+                        onCreate();
+                    }
+                },
+                onError: (errors) => {
+                    console.log("Errors:", errors);
+                },
+            });
+        }
+    };
+
+    useEffect(() => {
+        if (updateData) {
+            setData("name", updateData.name ?? "");
+            setData("full_address", updateData.full_address ?? "");
+            setData("short_address", updateData.short_address ?? "");
+            setData("region", updateData.region ?? "");
+            setData("class", updateData.class ?? "");
+            setData("practice", updateData.practice ?? "");
+            setData("s3_license", updateData.s3_license ?? "");
+            setData("s3_validity", updateData.s3_validity ?? "");
+            setData("pharmacist_name", updateData.pharmacist_name ?? "");
+            setData("prc_id", updateData.prc_id ?? "");
+            setData("prc_validity", updateData.prc_validity ?? "");
+            setData("remarks", updateData.remarks ?? "");
+        }
+        console.log(updateData);
+
+        handleModalVisibleToggle(visible);
+    }, [visible]);
+
     return (
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <Dialog open={isOpen} onOpenChange={handleModalVisibleToggle}>
             <DialogTrigger asChild>
-                <Button className={className} onClick={() => setIsOpen(true)}>
+                <Button
+                    className={className}
+                    onClick={() => handleModalVisibleToggle(true)}
+                >
                     {children}
                 </Button>
             </DialogTrigger>
             <DialogContent className="max-h-[calc(100dvh-4rem)] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Create Doctor / Hospital</DialogTitle>
-                    <DialogDescription>
-                        Add a new doctor or hospital to the system.
-                    </DialogDescription>
+                    {updateData ? (
+                        <>
+                            <DialogTitle>Update Doctor / Hospital</DialogTitle>
+                            <DialogDescription>
+                                Update doctor or hospital to the system.
+                            </DialogDescription>
+                        </>
+                    ) : (
+                        <>
+                            <DialogTitle>Create Doctor / Hospital</DialogTitle>
+                            <DialogDescription>
+                                Add a new doctor or hospital to the system.
+                            </DialogDescription>
+                        </>
+                    )}
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="grid gap-4">
@@ -325,9 +393,19 @@ function CreateCustomer({ className, onCreate, children }) {
                                 Cancel
                             </Button>
                         </DialogClose>
-                        <Button type="submit" disabled={processing}>
-                            {processing ? "Creating..." : "Create"}
-                        </Button>
+                        {updateData ? (
+                            <Button
+                                type="submit"
+                                disabled={processing}
+                                variant="secondary"
+                            >
+                                {processing ? "Updating..." : "Update"}
+                            </Button>
+                        ) : (
+                            <Button type="submit" disabled={processing}>
+                                {processing ? "Creating..." : "Create"}
+                            </Button>
+                        )}
                     </DialogFooter>
                 </form>
             </DialogContent>

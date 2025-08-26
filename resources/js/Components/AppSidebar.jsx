@@ -110,7 +110,11 @@ function AppSidebar() {
     };
 
     const isActiveThruChild = (routeName) => {
-        return route().current().includes(routeName);
+        if (route().current()) {
+            return route().current().includes(routeName);
+        }
+
+        return false;
     };
 
     return (

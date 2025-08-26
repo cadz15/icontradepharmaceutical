@@ -14,7 +14,7 @@ class MedicalRepresentativeController extends Controller
      */
     public function index()
     {
-        $medreps = MedicalRepresentative::latest()->paginate(2);
+        $medreps = MedicalRepresentative::latest()->paginate(15);
 
         return Inertia::render('Admin/MedicalRep', ['medicalReps' => $medreps]);
     }

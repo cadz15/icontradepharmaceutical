@@ -1,6 +1,7 @@
 import AppSidebar from "@/Components/AppSidebar";
 import Navbar from "@/Components/Navbar";
 import { SidebarProvider, SidebarTrigger } from "@/Components/ui/sidebar";
+import { Toaster } from "@/Components/ui/sonner";
 import { Link, usePage } from "@inertiajs/react";
 import { useState } from "react";
 
@@ -11,17 +12,20 @@ export default function AuthenticatedLayout({ header, children }) {
         useState(false);
 
     return (
-        <div className="min-h-screen bg-[#eef1f9] ">
-            <SidebarProvider>
-                <AppSidebar />
-                <main className="w-full">
-                    <Navbar />
-                    <div className="pt-28 pb-12 px-6 font-semibold ">
-                        <h1 className="text-2xl">{header}</h1>
-                        {children}
-                    </div>
-                </main>
-            </SidebarProvider>
-        </div>
+        <>
+            <div className="min-h-screen bg-[#eef1f9] ">
+                <SidebarProvider>
+                    <AppSidebar />
+                    <main className="w-full">
+                        <Navbar />
+                        <div className="pt-28 pb-12 px-6 font-semibold ">
+                            <h1 className="text-2xl">{header}</h1>
+                            {children}
+                        </div>
+                    </main>
+                </SidebarProvider>
+            </div>
+            <Toaster />
+        </>
     );
 }

@@ -5,11 +5,11 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-function AppTooltip({ title, children }) {
+function AppTooltip({ title, children, className }) {
     return (
         <Tooltip>
             <TooltipTrigger>{children}</TooltipTrigger>
-            <TooltipContent>
+            <TooltipContent className={className}>
                 <p>{title}</p>
             </TooltipContent>
         </Tooltip>

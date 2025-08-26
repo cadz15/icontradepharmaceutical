@@ -1,7 +1,7 @@
 import AppTooltip from "@/Components/AppTooltip";
 import { Card, CardContent, CardHeader } from "@/Components/ui/card";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head, usePage } from "@inertiajs/react";
+import { Head, Link, usePage } from "@inertiajs/react";
 import React from "react";
 import { FaRegEye } from "react-icons/fa6";
 import { FiEdit } from "react-icons/fi";
@@ -31,7 +31,7 @@ const items = {
 };
 
 function SalesOrder() {
-    const sales = usePage().props;
+    const { sales } = usePage().props;
 
     return (
         <AuthenticatedLayout header={"Sales Order"}>
@@ -72,18 +72,40 @@ function SalesOrder() {
                                     </td>
                                     <td className="p-3">{saleOrder.total}</td>
                                     <td className="p-3">
-                                        {saleOrder.medicalRepresentative?.name}
+                                        {saleOrder.medical_representative?.name}
                                     </td>
                                     <td className="p-3">{saleOrder.status}</td>
                                     <td className="p-3">
                                         {saleOrder.date_sold}
                                     </td>
                                     <td className="p-3 flex gap-2">
-                                        <AppTooltip title={"View"}>
-                                            <FaRegEye />
+                                        <AppTooltip
+                                            title={"View"}
+                                            className={`bg-indigo-500`}
+                                        >
+                                            <Link
+                                                href={route(
+                                                    "sales.order.show",
+                                                    saleOrder.id
+                                                )}
+                                            >
+                                                <FaRegEye className="text-indigo-500" />
+                                            </Link>
                                         </AppTooltip>
-                                        <FiEdit />
-                                        <RiDeleteBinLine />
+
+                                        <AppTooltip
+                                            title={"Edit"}
+                                            className={`bg-orange-500`}
+                                        >
+                                            <FiEdit className="text-orange-500" />
+                                        </AppTooltip>
+
+                                        <AppTooltip
+                                            title={"Delete"}
+                                            className={`bg-red-500`}
+                                        >
+                                            <RiDeleteBinLine className="text-red-500" />
+                                        </AppTooltip>
                                     </td>
                                 </tr>
                             ))}

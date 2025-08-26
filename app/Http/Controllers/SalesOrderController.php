@@ -16,7 +16,7 @@ class SalesOrderController extends Controller
     public function index()
     {
         $sales = SalesOrder::with(['customer', 'medicalRepresentative'])->latest()->paginate(15);
-
+        
         return Inertia::render('Admin/SalesOrder', [
             'sales' => $sales
         ]);
@@ -83,9 +83,13 @@ class SalesOrderController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(SalesOrder $salesOrder)
+    public function show($id)
     {
-        //
+        $salesOrder = SalesOrder::where('id', $id)->with(['customer', 'medicalRepresentative', 'saleItems'])->first();
+
+        return Inertia::render('Admin/SalesOrderView', [
+            'salesOrder' => $salesOrder
+        ]);
     }
 
     /**

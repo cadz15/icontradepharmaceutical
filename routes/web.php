@@ -30,6 +30,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/customer', [CustomerController::class, 'index'])->name('customer.index');
     Route::post('/customer', [CustomerController::class, 'store'])->name('customer.store');
+    Route::put('/customer/{id}', [CustomerController::class, 'update'])->name('customer.update');
+    Route::delete('/customer/{id}', [CustomerController::class, 'destroy'])->name('customer.delete');
 
 
     Route::get('/items', [ItemController::class, 'index'])->name('item.index');
@@ -37,6 +39,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/items/create', [ItemController::class, 'store'])->name('item.store');
 
     Route::get('/sales-orders', [SalesOrderController::class, 'index'])->name('sales.order.index');
+    Route::get('/sales-order/{id}', [SalesOrderController::class, 'show'])->name('sales.order.show');
 });
 
 Route::middleware(['auth'])->prefix('admin-api')->name('admin.api.')->group(function() {

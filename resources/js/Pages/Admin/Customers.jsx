@@ -1,16 +1,19 @@
 import AppPagination from "@/Components/AppPagination";
 import AppTooltip from "@/Components/AppTooltip";
 import CreateCustomer from "@/Components/Modal/Admin/CreateCustomer";
+import DeleteDialog from "@/Components/Modal/Admin/DeleteDialog";
 import { Card, CardContent, CardHeader } from "@/Components/ui/card";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, router, usePage } from "@inertiajs/react";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { FaRegEye, FaUserDoctor } from "react-icons/fa6";
 import { FiEdit } from "react-icons/fi";
 import { RiDeleteBinLine } from "react-icons/ri";
 
 function Customers() {
     const { customers } = usePage().props;
+    const [updateData, setUpdateData] = useState(null);
+    const [showModal, setShowModal] = useState(false);
 
     const fetchCustomers = () => {
         router.get(
@@ -28,6 +31,17 @@ function Customers() {
         );
     };
 
+    const handleSetUpdateData = (id) => {
+        const data = customers?.data?.filter((customer) => customer.id === id);
+        if (data) {
+            setUpdateData(data[0]);
+            setShowModal(true);
+        } else {
+            setUpdateData(null);
+            setShowModal(false);
+        }
+    };
+
     const handleS3Validity = (s3Date) => {
         const s3Validity = new Date(s3Date);
         const nowDate = new Date();
@@ -42,12 +56,21 @@ function Customers() {
     };
 
     useEffect(() => {
-        console.log(customers);
-    }, [customers]);
+        if (showModal) {
+            console.log(updateData);
+        }
+    }, [showModal, updateData]);
+
     return (
         <AuthenticatedLayout header={"Doctors / Hospitals"}>
             <Head title="Doctors / Hospitals" />
-            <CreateCustomer onCreate={handleNewCustomer} className="mt-8">
+            <CreateCustomer
+                onCreate={handleNewCustomer}
+                className="mt-8"
+                updateData={updateData}
+                showModal={setShowModal}
+                visible={showModal}
+            >
                 <FaUserDoctor size={18} /> Add New Doctor/Hospital
             </CreateCustomer>
 
@@ -101,11 +124,35 @@ function Customers() {
                                     </td>
                                     <td className="p-3">{customer.remarks}</td>
                                     <td className="p-3 flex gap-2">
-                                        <AppTooltip title={"View"}>
-                                            <FaRegEye />
+                                        <AppTooltip
+                                            title={"View"}
+                                            className={`bg-indigo-500`}
+                                        >
+                                            <FaRegEye className="text-indigo-500" />
                                         </AppTooltip>
-                                        <FiEdit />
-                                        <RiDeleteBinLine />
+
+                                        <AppTooltip
+                                            title={"Edit"}
+                                            className={`bg-orange-500`}
+                                        >
+                                            <FiEdit
+                                                className="text-orange-500"
+                                                onClick={() =>
+                                                    handleSetUpdateData(
+                                                        customer.id
+                                                    )
+                                                }
+                                            />
+                                        </AppTooltip>
+
+                                        <AppTooltip
+                                            title={"Delete"}
+                                            className={`bg-red-500`}
+                                        >
+                                            <DeleteDialog id={customer.id}>
+                                                <RiDeleteBinLine className="text-red-500" />
+                                            </DeleteDialog>
+                                        </AppTooltip>
                                     </td>
                                 </tr>
                             ))}
