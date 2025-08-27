@@ -52,7 +52,7 @@ class MobileSalesOrderController extends Controller
 
         try{
             $salesOrder = SalesOrder::create([
-                'customer_id' => $validated['customerOnlineId'],
+                'customer_id' => $request->get('customerOnlineId'),
                 'medical_representative_id' => $request->user()->id,
                 'sales_order_number' => $validated['salesOrderNumber'],
                 'date_sold' => $validated['dateSold'],
@@ -78,7 +78,6 @@ class MobileSalesOrderController extends Controller
                 array_push($salesItemsIds, [$item['id'] => $salesItem->id]);
             }
         }catch(Exception $ex) {
-            dd($ex);
             return response()->json([
                 'message' => 'Sale order corrupted!',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
