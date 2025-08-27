@@ -52,7 +52,7 @@ class CustomerController extends Controller
             'pharmacist_name' => $request->get('pharmacist_name'),
             'prc_id' => $request->get('prc_id'),
             'prc_validity' => $request->get('prc_validity'),
-            'remarks' => $request->get('remarks')
+            'remarks' => $request->get('remarks'),
         ]);
 
         return Inertia::render('Admin/Customers', [
@@ -103,7 +103,8 @@ class CustomerController extends Controller
                 'pharmacist_name' => $request->get('pharmacist_name'),
                 'prc_id' => $request->get('prc_id'),
                 'prc_validity' => $request->get('prc_validity'),
-                'remarks' => $request->get('remarks')
+                'remarks' => $request->get('remarks'),
+                'sync_date' => null,
             ]);
 
             return Inertia::render('Admin/Customers', [
@@ -122,6 +123,9 @@ class CustomerController extends Controller
         $customer = Customer::where('id', $id)->first();
         
         if($customer){
+            $customer->update([     
+                'sync_date' => null,
+            ]);
 
             $customer->delete();
             return redirect()->route('customer.index')->with('success', 'Post deleted successfully.');

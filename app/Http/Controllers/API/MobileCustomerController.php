@@ -16,7 +16,7 @@ class MobileCustomerController extends Controller
      */
     public function index()
     {
-        return ResourcesCustomer::collection(Customer::latest()->get());
+        return ResourcesCustomer::collection(Customer::whereNull('sync_date')->latest()->withTrashed()->get());
     }
 
     /**
@@ -57,7 +57,7 @@ class MobileCustomerController extends Controller
                 'prc_id'=> $request->get('prcId'),
                 'prc_validity'=> $request->get('prcValidity'),
                 'remarks'=> $validated['remarks'],
-                'sync_date'=> now()->format('m/d/y'),
+                'sync_date'=> now()->format('m/d/Y'),
             ]);
         }catch(Exception $ex) {
             return response()->json([
