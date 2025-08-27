@@ -16,7 +16,7 @@ class MobileCustomerController extends Controller
      */
     public function index()
     {
-        return ResourcesCustomer::collection(Customer::whereNull('sync_date')->latest()->withTrashed()->get());
+        return ResourcesCustomer::collection(Customer::latest()->withTrashed()->get());
     }
 
     /**
