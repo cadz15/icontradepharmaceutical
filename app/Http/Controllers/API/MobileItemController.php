@@ -14,7 +14,7 @@ class MobileItemController extends Controller
      */
     public function index()
     {
-        return ResourcesItem::collection(Item::with('images')->oldest('brand_name')->get());
+        return ResourcesItem::collection(Item::with('images')->withTrashed()->oldest('brand_name')->get());
     }
 
     /**
