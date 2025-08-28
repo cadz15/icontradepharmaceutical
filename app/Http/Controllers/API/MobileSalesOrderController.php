@@ -17,7 +17,7 @@ class MobileSalesOrderController extends Controller
      */
     public function index(Request $request)
     {
-       return ResourcesSalesOrder::collection(SalesOrder::where('medical_representative_id' , $request->user()->id)->withTrashed()->whereNull('sync_date')->with(['customer', 'medicalRepresentative', 'saleItems'])->latest()->get());
+       return ResourcesSalesOrder::collection(SalesOrder::where('medical_representative_id' , $request->user()->id)->withTrashed()->with(['customer', 'medicalRepresentative', 'saleItems'])->latest()->get());
     }
 
     /**
