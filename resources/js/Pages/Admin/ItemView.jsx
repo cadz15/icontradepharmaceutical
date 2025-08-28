@@ -20,13 +20,13 @@ function ItemView() {
     return (
         <AuthenticatedLayout>
             <Head title="Item" />
-            <div className="p-12">
+            <div className="p-12 z-0">
                 <Carousel>
                     <CarouselContent>
                         {item.images.map((itemImage, index) => (
                             <CarouselItem key={index}>
                                 <img
-                                    src={route("getfile", itemImage.id)}
+                                    src={route("image.link", itemImage.id)}
                                     loading="lazy"
                                 />
                             </CarouselItem>

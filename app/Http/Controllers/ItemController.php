@@ -123,7 +123,7 @@ class ItemController extends Controller
 
      public function getFile($id)
     {
-        $image = ItemImages::where('id', $id)->first();
+        $image = ItemImage::where('id', $id)->first();
         if(!$image) abort(404);
 
 

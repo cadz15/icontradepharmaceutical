@@ -74,14 +74,14 @@ function Customers() {
                 <FaUserDoctor size={18} /> Add New Doctor/Hospital
             </CreateCustomer>
 
-            <Card className="mt-4 p-0">
+            <Card className="mt-4 p-0 w-full">
                 <CardHeader className="p-4">
                     <h1 className="font-medium text-xl">
                         Doctor / Hospital List
                     </h1>
                 </CardHeader>
-                <CardContent>
-                    <table className="w-full overflow-y-auto">
+                <CardContent className="overflow-y-auto">
+                    <table className="w-11/12">
                         <thead className="bg-[#eef1f9]">
                             <tr className="border-b shadow-sm text-left">
                                 <th className="p-3">Name</th>

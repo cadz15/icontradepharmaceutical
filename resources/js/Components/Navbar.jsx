@@ -12,7 +12,7 @@ import { Link } from "@inertiajs/react";
 
 const Navbar = () => {
     return (
-        <header className="fixed w-full md:w-[calc(100%-255px)]">
+        <header className="fixed w-full md:w-[calc(100%-255px)] z-50">
             <div className="flex items-center justify-between p-4 border-b bg-white">
                 <SidebarTrigger className="text-lg md:hidden" iconSize={26} />
                 <div></div>
