@@ -40,6 +40,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/sales-orders', [SalesOrderController::class, 'index'])->name('sales.order.index');
     Route::get('/sales-order/{id}', [SalesOrderController::class, 'show'])->name('sales.order.show');
+    Route::put('/sales-order/{id}', [SalesOrderController::class, 'update'])->name('sales.order.update');
 });
 
 Route::middleware(['auth'])->prefix('admin-api')->name('admin.api.')->group(function() {

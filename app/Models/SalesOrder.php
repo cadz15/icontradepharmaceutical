@@ -24,6 +24,6 @@ class SalesOrder extends Model
 
     public function saleItems()
     {
-        return $this->hasMany(SalesOrderItem::class, 'id', 'sales_order_id');
+        return $this->hasMany(SalesOrderItem::class, 'sales_order_id', 'id');
     }
 }

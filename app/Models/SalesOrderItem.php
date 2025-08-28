@@ -11,4 +11,8 @@ class SalesOrderItem extends Model
 
     
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
+
+    public function item() {
+        return $this->hasOne(Item::class, 'id', 'item_id');
+    }
 }

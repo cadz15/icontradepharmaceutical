@@ -85,7 +85,11 @@ class SalesOrderController extends Controller
      */
     public function show($id)
     {
-        $salesOrder = SalesOrder::where('id', $id)->with(['customer', 'medicalRepresentative', 'saleItems'])->first();
+       $salesOrder = SalesOrder::with([
+            'customer',
+            'medicalRepresentative',
+            'saleItems.item' // nested item through saleItems
+        ])->find($id);
 
         return Inertia::render('Admin/SalesOrderView', [
             'salesOrder' => $salesOrder
@@ -95,9 +99,29 @@ class SalesOrderController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, SalesOrder $salesOrder)
+    public function update(Request $request, $id)
     {
-        //
+        $validated = $request->validate([
+            'status' => ['required', 'string']
+        ]);
+
+        $salesOrder = SalesOrder::where('id', $id)->with([
+            'customer',
+            'medicalRepresentative',
+            'saleItems.item' // nested item through saleItems
+        ])->first();
+
+        if($salesOrder) {
+            $salesOrder->update([
+                'status' => $validated['status'],
+                'sync_date' => ''
+            ]);
+
+            return Inertia::render('Admin/SalesOrderView', [
+                'message' => 'Sales Order updated!',
+                'salesOrder' => $salesOrder  // Or any other data you want to pass to the page
+            ]);
+        }
     }
 
     /**
