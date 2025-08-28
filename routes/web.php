@@ -37,10 +37,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/items', [ItemController::class, 'index'])->name('item.index');
     Route::get('/items/create', [ItemController::class, 'create'])->name('item.create');
     Route::post('/items/create', [ItemController::class, 'store'])->name('item.store');
+    Route::get('/item/{id}', [ItemController::class, 'show'])->name('item.show');
+    Route::put('/item/{id}', [ItemController::class, 'update'])->name('item.update');
+    Route::delete('/item/{id}', [ItemController::class, 'destroy'])->name('item.delete');
 
     Route::get('/sales-orders', [SalesOrderController::class, 'index'])->name('sales.order.index');
     Route::get('/sales-order/{id}', [SalesOrderController::class, 'show'])->name('sales.order.show');
     Route::put('/sales-order/{id}', [SalesOrderController::class, 'update'])->name('sales.order.update');
+    Route::delete('/sales-order/{id}', [SalesOrderController::class, 'destroy'])->name('sales.order.delete');
 });
 
 Route::middleware(['auth'])->prefix('admin-api')->name('admin.api.')->group(function() {

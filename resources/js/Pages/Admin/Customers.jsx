@@ -149,7 +149,15 @@ function Customers() {
                                             title={"Delete"}
                                             className={`bg-red-500`}
                                         >
-                                            <DeleteDialog id={customer.id}>
+                                            <DeleteDialog
+                                                address={route(
+                                                    "customer.delete",
+                                                    customer.id
+                                                )}
+                                                toastMessage={
+                                                    "Customer Deleted!"
+                                                }
+                                            >
                                                 <RiDeleteBinLine className="text-red-500" />
                                             </DeleteDialog>
                                         </AppTooltip>

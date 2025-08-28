@@ -1,5 +1,6 @@
 import AppPagination from "@/Components/AppPagination";
 import AppTooltip from "@/Components/AppTooltip";
+import DeleteDialog from "@/Components/Modal/Admin/DeleteDialog";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader } from "@/Components/ui/card";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
@@ -55,12 +56,37 @@ function Items() {
                                         {item.catalog_price}
                                     </td>
                                     <td className="p-3">{item.product_type}</td>
-                                    <td className="p-3 flex gap-2">
-                                        <AppTooltip title={"View"}>
-                                            <FaRegEye />
+                                    <td className="p-3 flex gap-2 items-center justify-center">
+                                        <AppTooltip
+                                            title={"View"}
+                                            className={`bg-indigo-500`}
+                                        >
+                                            <Link
+                                                href={route(
+                                                    "item.show",
+                                                    item.id
+                                                )}
+                                            >
+                                                <FaRegEye className="text-indigo-500" />
+                                            </Link>
                                         </AppTooltip>
-                                        <FiEdit />
-                                        <RiDeleteBinLine />
+
+                                        <AppTooltip
+                                            title={"Delete"}
+                                            className={`bg-red-500`}
+                                        >
+                                            <DeleteDialog
+                                                address={route(
+                                                    "item.delete",
+                                                    item.id
+                                                )}
+                                                toastMessage={
+                                                    "Sales Order Deleted!"
+                                                }
+                                            >
+                                                <RiDeleteBinLine className="text-red-500" />
+                                            </DeleteDialog>
+                                        </AppTooltip>
                                     </td>
                                 </tr>
                             ))}

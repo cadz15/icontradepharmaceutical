@@ -13,13 +13,13 @@ import { useForm } from "@inertiajs/react";
 import React from "react";
 import { toast } from "sonner";
 
-function DeleteDialog({ id, children }) {
+function DeleteDialog({ address, toastMessage, children }) {
     const { delete: destroy, processing } = useForm();
     const handleDelete = () => {
-        destroy(route("customer.delete", id), {
+        destroy(address, {
             preserveScroll: true,
             onSuccess: () => {
-                toast.success("Customer deleted!");
+                toast.success(toastMessage);
             },
             onError: (errors) => {
                 console.error(errors);
@@ -37,8 +37,7 @@ function DeleteDialog({ id, children }) {
                     </AlertDialogTitle>
                     <AlertDialogDescription>
                         This action cannot be undone. This will permanently
-                        delete your account and remove your data from our
-                        servers.
+                        delete and remove your the data from the server.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

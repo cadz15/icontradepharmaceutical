@@ -79,9 +79,18 @@ class ItemController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Item $item)
+    public function show($id)
     {
-        //
+        $item = Item::where('id', $id)->with(['images'])->first();
+
+        if($item) {
+            return Inertia::render('Admin/ItemView', [
+            'item' => $item
+        ]);
+        }
+
+
+        return abort(404);
     }
 
     /**

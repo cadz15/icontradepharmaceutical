@@ -127,8 +127,24 @@ class SalesOrderController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(SalesOrder $salesOrder)
+    public function destroy($id)
     {
-        //
+        $salesOrder = SalesOrder::where('id', $id)->first();
+
+        
+        if($salesOrder){
+            $salesOrder->update([     
+                'sync_date' => null,
+            ]);
+
+            $salesOrder->delete();
+
+            $salesItems = SalesOrderItem::where('sales_order_id', $id)->delete();
+
+
+            return redirect()->route('sales.order.index')->with('success', 'Deleted successfully.');
+        }
+
+        return abort(404);
     }
 }

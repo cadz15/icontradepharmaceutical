@@ -1,4 +1,5 @@
 import AppTooltip from "@/Components/AppTooltip";
+import DeleteDialog from "@/Components/Modal/Admin/DeleteDialog";
 import { Card, CardContent, CardHeader } from "@/Components/ui/card";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, usePage } from "@inertiajs/react";
@@ -94,17 +95,20 @@ function SalesOrder() {
                                         </AppTooltip>
 
                                         <AppTooltip
-                                            title={"Edit"}
-                                            className={`bg-orange-500`}
-                                        >
-                                            <FiEdit className="text-orange-500" />
-                                        </AppTooltip>
-
-                                        <AppTooltip
                                             title={"Delete"}
                                             className={`bg-red-500`}
                                         >
-                                            <RiDeleteBinLine className="text-red-500" />
+                                            <DeleteDialog
+                                                address={route(
+                                                    "sales.order.delete",
+                                                    saleOrder.id
+                                                )}
+                                                toastMessage={
+                                                    "Sales Order Deleted!"
+                                                }
+                                            >
+                                                <RiDeleteBinLine className="text-red-500" />
+                                            </DeleteDialog>
                                         </AppTooltip>
                                     </td>
                                 </tr>
