@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ItemImages;
 use App\Models\Item;
 use App\Models\ItemImage;
 use Illuminate\Http\Request;
@@ -118,5 +119,20 @@ class ItemController extends Controller
             'message' => 'Fetch successfully!',
             'items' => $items
         ], Response::HTTP_OK);
+    }
+
+     public function getFile($id)
+    {
+        $image = ItemImages::where('id', $id)->first();
+        if(!$image) abort(404);
+
+
+        $path = storage_path('app/public/' . $image->link);
+
+        if (!file_exists($path)) {
+            abort(404);
+        }
+
+        return response()->file($path);
     }
 }

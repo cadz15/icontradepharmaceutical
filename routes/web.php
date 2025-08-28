@@ -45,6 +45,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/sales-order/{id}', [SalesOrderController::class, 'show'])->name('sales.order.show');
     Route::put('/sales-order/{id}', [SalesOrderController::class, 'update'])->name('sales.order.update');
     Route::delete('/sales-order/{id}', [SalesOrderController::class, 'destroy'])->name('sales.order.delete');
+
+    Route::get('/storage/uploads/{filename}', [ItemController::class, 'getFile'])->name('getFile');
 });
 
 Route::middleware(['auth'])->prefix('admin-api')->name('admin.api.')->group(function() {

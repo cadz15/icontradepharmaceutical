@@ -30,7 +30,7 @@ function Items() {
                     <h1 className="font-medium text-xl">Items Inventory</h1>
                 </CardHeader>
                 <CardContent>
-                    <table className="w-full">
+                    <table className="w-full overflow-y-auto">
                         <thead className="bg-[#eef1f9]">
                             <tr className="border-b shadow-sm text-left">
                                 <th className="p-3">Brand Name</th>
