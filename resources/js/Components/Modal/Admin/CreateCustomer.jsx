@@ -77,6 +77,10 @@ function CreateCustomer({
         setData("region", text);
     };
 
+    const handleClassChange = (text) => {
+        setData("class", text);
+    };
+
     const handleModalVisibleToggle = (visible) => {
         setIsOpen(visible);
         showModal(visible);
@@ -258,13 +262,26 @@ function CreateCustomer({
                             <Label htmlFor="class">
                                 Class<span className="text-red-500">*</span>
                             </Label>
-                            <Input
-                                id="class"
-                                name="class"
-                                placeholder="A"
+                            <Select
+                                onValueChange={handleClassChange}
                                 value={data.class}
-                                onChange={handleChange}
-                            />
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Class" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value={"A"}>
+                                        CLASS A: DESPENCING/ WITH PURCHASING
+                                        POWER
+                                    </SelectItem>
+                                    <SelectItem value={"B"}>
+                                        CLASS B: PRESCRIBING ONLY
+                                    </SelectItem>
+                                    <SelectItem value={"C"}>
+                                        CLASS C: NO COMMITMENT
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
                             {errors.class && (
                                 <p className="text-sm text-red-500">
                                     {errors.class}
