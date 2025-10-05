@@ -1,18 +1,47 @@
-import { Button } from "@/Components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/Components/ui/select";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { formattedCurrency } from "@/util/currencyFormat";
-import { formatDate } from "@/util/formattedDate";
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+import AuthenticatedLayout from "@/layouts/AuthenticatedLayout";
 import { Head, useForm, usePage } from "@inertiajs/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { toast } from "sonner";
+import {
+    Package,
+    User,
+    MapPin,
+    Calendar,
+    DollarSign,
+    Truck,
+    Package2,
+    Clock,
+    CheckCircle2,
+    Loader2,
+} from "lucide-react";
+
+const statusConfig = {
+    pending: { label: "Pending", color: "bg-yellow-500", icon: Clock },
+    packed: { label: "Packed", color: "bg-blue-500", icon: Package2 },
+    delivered: {
+        label: "Delivered",
+        color: "bg-green-500",
+        icon: CheckCircle2,
+    },
+};
 
 function SalesOrderView() {
     const { salesOrder } = usePage().props;
@@ -24,154 +53,382 @@ function SalesOrderView() {
     const handleSubmit = () => {
         put(route("sales.order.update", salesOrder.id), {
             onSuccess: () => {
-                toast.success("Sales order updated!");
+                toast.success("Sales order updated successfully!");
+            },
+            onError: () => {
+                toast.error("Failed to update sales order. Please try again.");
             },
         });
     };
 
+    const formatCurrency = (amount) => {
+        const numericAmount =
+            typeof amount === "string" ? parseFloat(amount) : amount;
+        return new Intl.NumberFormat("en-PH", {
+            style: "currency",
+            currency: "PHP",
+        }).format(numericAmount);
+    };
+
+    const formatDate = (dateString) => {
+        return new Date(dateString).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
+    };
+
+    const getStatusBadge = (status) => {
+        const config = statusConfig[status] || statusConfig.pending;
+        const IconComponent = config.icon;
+
+        return (
+            <Badge
+                className={`${config.color} text-white hover:${config.color}`}
+            >
+                <IconComponent className="h-3 w-3 mr-1" />
+                {config.label}
+            </Badge>
+        );
+    };
+
+    const getPromoDisplay = (item) => {
+        switch (item.promo) {
+            case "regular":
+                return <Badge variant="outline">Regular</Badge>;
+            case "discount":
+                return (
+                    <div className="space-y-1">
+                        <Badge
+                            variant="secondary"
+                            className="bg-orange-100 text-orange-800"
+                        >
+                            Discount: {item.discount}%
+                        </Badge>
+                        <div className="text-xs text-muted-foreground">
+                            Save{" "}
+                            {formatCurrency(
+                                (parseFloat(item.item.catalog_price) *
+                                    item.quantity *
+                                    (item.discount || 0)) /
+                                    100
+                            )}
+                        </div>
+                    </div>
+                );
+            case "free_item":
+                return (
+                    <div className="space-y-1">
+                        <Badge
+                            variant="secondary"
+                            className="bg-green-100 text-green-800"
+                        >
+                            Free Item
+                        </Badge>
+                        <div className="text-xs text-muted-foreground">
+                            {item.free_item_quantity} items -{" "}
+                            {item.free_item_remarks}
+                        </div>
+                    </div>
+                );
+            default:
+                return <Badge variant="outline">Regular</Badge>;
+        }
+    };
+
     useEffect(() => {
-        console.log(salesOrder);
-
         setData("status", salesOrder.status);
-    }, [salesOrder]);
-    return (
-        <AuthenticatedLayout header={"Sales Order"}>
-            <Head title="Sales Order" />
+    }, [salesOrder, setData]);
 
-            <div className="flex flex-col md:flex-row gap-6 w-full mt-8 ">
-                <div className="w-full md:w-1/3">
-                    <Card>
+    const currentStatusConfig =
+        statusConfig[data.status] || statusConfig.pending;
+    const StatusIcon = currentStatusConfig.icon;
+
+    return (
+        <AuthenticatedLayout header="Sales Order">
+            <Head title={`Sales Order #${salesOrder.sales_order_number}`} />
+
+            <div className="container max-w-7xl mx-auto py-6 space-y-6">
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight">
+                            Sales Order #{salesOrder.sales_order_number}
+                        </h1>
+                        <p className="text-muted-foreground mt-1">
+                            Order placed on {formatDate(salesOrder.date_sold)}
+                        </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        {getStatusBadge(salesOrder.status)}
+                    </div>
+                </div>
+
+                <div className="grid gap-6 lg:grid-cols-3">
+                    {/* Order Information */}
+                    <Card className="lg:col-span-1">
                         <CardHeader>
-                            <CardTitle>Sales Order Information</CardTitle>
+                            <CardTitle className="flex items-center gap-2">
+                                <Package className="h-5 w-5" />
+                                Order Information
+                            </CardTitle>
                         </CardHeader>
-                        <CardContent>
-                            <div className="mt-6 flex flex-col gap-2">
-                                <div className="w-full">
-                                    <h5 className="font-normal">Customer:</h5>
-                                    <span> {salesOrder?.customer?.name}</span>
+                        <CardContent className="space-y-6">
+                            {/* Customer Info */}
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-blue-100 rounded-lg">
+                                        <User className="h-4 w-4 text-blue-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-muted-foreground">
+                                            Customer
+                                        </p>
+                                        <p className="font-medium">
+                                            {salesOrder.customer?.name}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div className="w-full">
-                                    <h5 className="font-normal">Address:</h5>
-                                    <span>
-                                        {" "}
-                                        {salesOrder?.customer?.short_address}
-                                    </span>
+
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-green-100 rounded-lg">
+                                        <MapPin className="h-4 w-4 text-green-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-muted-foreground">
+                                            Address
+                                        </p>
+                                        <p className="font-medium">
+                                            {salesOrder.customer?.short_address}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div className="w-full">
-                                    <h5 className="font-normal">
-                                        Medical Rep:
-                                    </h5>
-                                    <span>
-                                        {" "}
-                                        {
-                                            salesOrder?.medical_representative
-                                                ?.name
-                                        }
-                                    </span>
+
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-purple-100 rounded-lg">
+                                        <Truck className="h-4 w-4 text-purple-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-muted-foreground">
+                                            Medical Representative
+                                        </p>
+                                        <p className="font-medium">
+                                            {
+                                                salesOrder
+                                                    .medical_representative
+                                                    ?.name
+                                            }
+                                        </p>
+                                    </div>
                                 </div>
-                                <div className="w-full">
-                                    <h5 className="font-normal">Date Sold:</h5>
-                                    <span>
-                                        {" "}
-                                        {formatDate(salesOrder?.date_sold)}
-                                    </span>
+
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-orange-100 rounded-lg">
+                                        <Calendar className="h-4 w-4 text-orange-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-muted-foreground">
+                                            Date Sold
+                                        </p>
+                                        <p className="font-medium">
+                                            {formatDate(salesOrder.date_sold)}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div className="w-full">
-                                    <h5 className="font-normal">Total:</h5>
-                                    <span>
-                                        {" "}
-                                        {formattedCurrency(salesOrder?.total)}
-                                    </span>
+
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-emerald-100 rounded-lg">
+                                        <DollarSign className="h-4 w-4 text-emerald-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-muted-foreground">
+                                            Total Amount
+                                        </p>
+                                        <p className="text-lg font-bold text-emerald-700">
+                                            {formatCurrency(salesOrder.total)}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div className="w-full">
-                                    <span className="font-normal">Status:</span>
+                            </div>
+
+                            {/* Status Update */}
+                            <div className="space-y-4 pt-4 border-t">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">
+                                        Update Status
+                                    </label>
                                     <Select
                                         value={data.status}
-                                        onValueChange={(text) => {
-                                            setData("status", text);
-                                        }}
+                                        onValueChange={(value) =>
+                                            setData("status", value)
+                                        }
                                     >
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Region" />
+                                            <div className="flex items-center gap-2">
+                                                <StatusIcon className="h-4 w-4" />
+                                                <SelectValue placeholder="Select status" />
+                                            </div>
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value={"pending"}>
-                                                Pending
+                                            <SelectItem value="pending">
+                                                <div className="flex items-center gap-2">
+                                                    <Clock className="h-4 w-4" />
+                                                    Pending
+                                                </div>
                                             </SelectItem>
-                                            <SelectItem value={"packed"}>
-                                                Packed
+                                            <SelectItem value="packed">
+                                                <div className="flex items-center gap-2">
+                                                    <Package2 className="h-4 w-4" />
+                                                    Packed
+                                                </div>
                                             </SelectItem>
-                                            <SelectItem value={"delivered"}>
-                                                Delivered
+                                            <SelectItem value="delivered">
+                                                <div className="flex items-center gap-2">
+                                                    <CheckCircle2 className="h-4 w-4" />
+                                                    Delivered
+                                                </div>
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
+
                                 <Button
-                                    className="mt-8"
-                                    type="submit"
                                     onClick={handleSubmit}
-                                    disabled={processing}
+                                    disabled={
+                                        processing ||
+                                        data.status === salesOrder.status
+                                    }
+                                    className="w-full gap-2"
                                 >
-                                    {processing ? "Updating..." : "Update"}
+                                    {processing ? (
+                                        <>
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                            Updating...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <CheckCircle2 className="h-4 w-4" />
+                                            Update Status
+                                        </>
+                                    )}
                                 </Button>
                             </div>
                         </CardContent>
                     </Card>
-                </div>
-                <div className="w-full md:w-2/3 ">
-                    <Card className="flex-1 p-0">
-                        <CardHeader className="p-4">
-                            <h1 className="font-medium text-xl">Items</h1>
+
+                    {/* Order Items */}
+                    <Card className="lg:col-span-2">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Package2 className="h-5 w-5" />
+                                Order Items (
+                                {salesOrder.sale_items?.length || 0})
+                            </CardTitle>
                         </CardHeader>
-                        <CardContent>
-                            <table className="w-full">
-                                <thead className="bg-[#eef1f9]">
-                                    <tr className="border-b shadow-sm text-left">
-                                        <th className="p-3">Brand Name</th>
-                                        <th className="p-3">Generic Name</th>
-                                        <th className="p-3">Quantity</th>
-                                        <th className="p-3">Catalog Price</th>
-                                        <th className="p-3">Promo</th>
-                                        <th className="p-3">Total</th>
-                                        <th className="p-3">Remarks</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {salesOrder?.sale_items?.map((item) => (
-                                        <tr
-                                            className="border-b font-normal"
-                                            key={item.id}
-                                        >
-                                            <td className="p-3">
-                                                {item.item?.brand_name}
-                                            </td>
-                                            <td className="p-3">
-                                                {item.item?.generic_name}
-                                            </td>
-                                            <td className="p-3">
-                                                {item.quantity}
-                                            </td>
-                                            <td className="text-right p-3">
-                                                {formattedCurrency(
-                                                    item.item?.catalog_price
-                                                )}
-                                            </td>
-                                            <td className="p-3">
-                                                {item.promo === "regular"
-                                                    ? "Regular"
-                                                    : item.promo === "discount"
-                                                    ? `Discount: ${item.discount}`
-                                                    : `Free Item Quantity: ${item.free_item_quantity} - ${item.free_item_remarks}`}
-                                            </td>
-                                            <td className="text-right p-3">
-                                                {formattedCurrency(item.total)}
-                                            </td>
-                                            <td>{item.remarks}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                        <CardContent className="p-0">
+                            <div className="border rounded-lg">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="font-semibold">
+                                                Product
+                                            </TableHead>
+                                            <TableHead className="font-semibold">
+                                                Quantity
+                                            </TableHead>
+                                            <TableHead className="font-semibold text-right">
+                                                Unit Price
+                                            </TableHead>
+                                            <TableHead className="font-semibold">
+                                                Promotion
+                                            </TableHead>
+                                            <TableHead className="font-semibold text-right">
+                                                Total
+                                            </TableHead>
+                                            <TableHead className="font-semibold">
+                                                Remarks
+                                            </TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {salesOrder.sale_items?.map((item) => (
+                                            <TableRow
+                                                key={item.id}
+                                                className="hover:bg-muted/50"
+                                            >
+                                                <TableCell>
+                                                    <div className="space-y-1">
+                                                        <div className="font-medium">
+                                                            {
+                                                                item.item
+                                                                    ?.brand_name
+                                                            }
+                                                        </div>
+                                                        <div className="text-sm text-muted-foreground">
+                                                            {
+                                                                item.item
+                                                                    ?.generic_name
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="font-mono"
+                                                    >
+                                                        {item.quantity}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-right font-medium">
+                                                    {formatCurrency(
+                                                        item.item?.catalog_price
+                                                    )}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {getPromoDisplay(item)}
+                                                </TableCell>
+                                                <TableCell className="text-right font-medium">
+                                                    {formatCurrency(item.total)}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="max-w-[150px]">
+                                                        {item.remarks ? (
+                                                            <span className="text-sm text-muted-foreground truncate">
+                                                                {item.remarks}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-sm text-muted-foreground">
+                                                                -
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+
+                            {/* Order Summary */}
+                            <div className="flex justify-end p-6 border-t">
+                                <div className="space-y-2 min-w-[200px]">
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-muted-foreground">
+                                            Subtotal:
+                                        </span>
+                                        <span>
+                                            {formatCurrency(salesOrder.total)}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between text-lg font-bold border-t pt-2">
+                                        <span>Total:</span>
+                                        <span className="text-emerald-700">
+                                            {formatCurrency(salesOrder.total)}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                         </CardContent>
                     </Card>
                 </div>
