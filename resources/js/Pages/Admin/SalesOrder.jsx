@@ -22,6 +22,20 @@ import DeleteDialog from "@/components/Modal/Admin/DeleteDialog";
 import AuthenticatedLayout from "@/layouts/AuthenticatedLayout";
 import { Head, Link } from "@inertiajs/react";
 
+const statusVariant = {
+    pending: "outline",
+    completed: "default",
+    cancelled: "destructive",
+    processing: "secondary",
+};
+
+const statusColors = {
+    pending: "bg-yellow-500 hover:bg-yellow-600",
+    completed: "bg-green-500 hover:bg-green-600",
+    cancelled: "bg-red-500 hover:bg-red-600",
+    processing: "bg-blue-500 hover:bg-blue-600",
+};
+
 function SalesOrder() {
     const { sales } = usePage().props;
 
