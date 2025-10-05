@@ -24,7 +24,9 @@ class Item extends JsonResource
             'product_type' => $this->product_type,
             'inventory' => $this->inventory,
             'images' => ItemImages::collection($this->images),
-            'created_at' => $this->created_at->format('M d, Y')
+            'created_at' => $this->created_at->format('M d, Y'),
+            'updated_at' => $this->updated_at->format('M d, Y'),
+            'deleted_at' => $this->deleted_at?->format('M d, Y')
         ];
     }
 }
