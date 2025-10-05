@@ -1,40 +1,70 @@
-import AppPagination from "@/Components/AppPagination";
-import AppTooltip from "@/Components/AppTooltip";
-import CreateCustomer from "@/Components/Modal/Admin/CreateCustomer";
-import DeleteDialog from "@/Components/Modal/Admin/DeleteDialog";
-import { Card, CardContent, CardHeader } from "@/Components/ui/card";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import { useState } from "react";
 import { Head, router, usePage } from "@inertiajs/react";
-import React, { useEffect, useState } from "react";
-import { FaRegEye, FaUserDoctor } from "react-icons/fa6";
-import { FiEdit } from "react-icons/fi";
-import { RiDeleteBinLine } from "react-icons/ri";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+    Eye,
+    Edit,
+    Trash2,
+    UserPlus,
+    Building2,
+    MapPin,
+    Calendar,
+    User,
+    MessageSquare,
+} from "lucide-react";
+import AppPagination from "@/components/AppPagination";
+import CreateCustomer from "@/components/Modal/Admin/CreateCustomer";
+import DeleteDialog from "@/components/Modal/Admin/DeleteDialog";
+import AuthenticatedLayout from "@/layouts/AuthenticatedLayout";
 
-function Customers() {
+export default function Customers() {
     const { customers } = usePage().props;
     const [updateData, setUpdateData] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
-    const fetchCustomers = () => {
-        router.get(
-            route("customer.index"),
-            {},
-            {
-                onSuccess: ({ props }) => {},
-                onError: (error) => {
-                    console.error(
-                        "Error fetching medical representatives:",
-                        error
-                    );
-                },
-            }
-        );
+    const fetchCustomers = async () => {
+        setIsRefreshing(true);
+        try {
+            await router.get(
+                route("customer.index"),
+                {},
+                {
+                    onSuccess: () => {
+                        setIsRefreshing(false);
+                    },
+                    onError: (error) => {
+                        console.error("Error fetching customers:", error);
+                        setIsRefreshing(false);
+                    },
+                }
+            );
+        } catch (error) {
+            console.error("Error fetching customers:", error);
+            setIsRefreshing(false);
+        }
     };
 
     const handleSetUpdateData = (id) => {
-        const data = customers?.data?.filter((customer) => customer.id === id);
+        const data = customers?.data?.find((customer) => customer.id === id);
         if (data) {
-            setUpdateData(data[0]);
+            setUpdateData(data);
             setShowModal(true);
         } else {
             setUpdateData(null);
@@ -43,139 +73,446 @@ function Customers() {
     };
 
     const handleS3Validity = (s3Date) => {
-        const s3Validity = new Date(s3Date);
-        const nowDate = new Date();
-
         if (!s3Date) return false;
 
-        return nowDate <= s3Validity;
+        try {
+            const s3Validity = new Date(s3Date);
+            const nowDate = new Date();
+            return nowDate <= s3Validity;
+        } catch (error) {
+            console.error("Error parsing date:", error);
+            return false;
+        }
+    };
+
+    const formatS3Date = (s3Date) => {
+        if (!s3Date) return "Not Available";
+
+        try {
+            return new Date(s3Date).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+            });
+        } catch (error) {
+            return "Invalid Date";
+        }
     };
 
     const handleNewCustomer = () => {
         fetchCustomers();
     };
 
-    useEffect(() => {
-        if (showModal) {
-            console.log(updateData);
-        }
-    }, [showModal, updateData]);
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setUpdateData(null);
+    };
+
+    const getStatusBadge = (customer) => {
+        const isValid = handleS3Validity(customer.s3_validity);
+        return isValid ? (
+            <Badge
+                variant="default"
+                className="bg-green-500 hover:bg-green-600"
+            >
+                <Calendar className="h-3 w-3 mr-1" />
+                Valid until {formatS3Date(customer.s3_validity)}
+            </Badge>
+        ) : (
+            <Badge variant="outline" className="text-red-500 border-red-200">
+                Not Accredited
+            </Badge>
+        );
+    };
 
     return (
-        <AuthenticatedLayout header={"Doctors / Hospitals"}>
+        <AuthenticatedLayout>
             <Head title="Doctors / Hospitals" />
-            <CreateCustomer
-                onCreate={handleNewCustomer}
-                className="mt-8"
-                updateData={updateData}
-                showModal={setShowModal}
-                visible={showModal}
-            >
-                <FaUserDoctor size={18} /> Add New Doctor/Hospital
-            </CreateCustomer>
 
-            <Card className="mt-4 p-0 w-full">
-                <CardHeader className="p-4">
-                    <h1 className="font-medium text-xl">
-                        Doctor / Hospital List
-                    </h1>
-                </CardHeader>
-                <CardContent className="overflow-y-auto">
-                    <table className="w-11/12">
-                        <thead className="bg-[#eef1f9]">
-                            <tr className="border-b shadow-sm text-left">
-                                <th className="p-3">Name</th>
-                                <th className="p-3">Address</th>
-                                <th className="p-3">Region</th>
-                                <th className="p-3">Class</th>
-                                <th className="p-3">Practice</th>
-                                <th className="p-3">S3 Accredited</th>
-                                <th className="p-3">Pharmacist</th>
-                                <th className="p-3">Remarks</th>
-                                <th className="p-3">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {customers?.data?.map((customer) => (
-                                <tr
-                                    className="border-b font-normal"
-                                    key={customer.id}
-                                >
-                                    <td className="p-3">{customer.name}</td>
-                                    <td className="p-3">
-                                        {customer.full_address}
-                                    </td>
-                                    <td className="p-3">{customer.region}</td>
-                                    <td className="p-3">{customer.class}</td>
-                                    <td className="p-3">{customer.practice}</td>
-                                    <td className="p-3">
-                                        {handleS3Validity(
-                                            customer.s3_validity
-                                        ) ? (
-                                            <span>{customer.s3_validity}</span>
-                                        ) : (
-                                            <span className="text-red-500">
-                                                Not Available
-                                            </span>
-                                        )}
-                                    </td>
-                                    <td className="p-3">
-                                        {customer.pharmacist_name}
-                                    </td>
-                                    <td className="p-3">{customer.remarks}</td>
-                                    <td className="p-3 flex gap-2">
-                                        <AppTooltip
-                                            title={"View"}
-                                            className={`bg-indigo-500`}
-                                        >
-                                            <FaRegEye className="text-indigo-500" />
-                                        </AppTooltip>
+            <div className="space-y-6">
+                {/* Header with Add Button */}
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+                            <Building2 className="h-8 w-8 text-primary" />
+                            Doctors / Hospitals
+                        </h1>
+                        <p className="text-muted-foreground mt-1">
+                            Manage your medical professionals and healthcare
+                            facilities
+                        </p>
+                    </div>
 
-                                        <AppTooltip
-                                            title={"Edit"}
-                                            className={`bg-orange-500`}
-                                        >
-                                            <FiEdit
-                                                className="text-orange-500"
-                                                onClick={() =>
-                                                    handleSetUpdateData(
-                                                        customer.id
-                                                    )
-                                                }
-                                            />
-                                        </AppTooltip>
+                    <div className="flex items-center gap-3">
+                        <Button
+                            variant="outline"
+                            onClick={fetchCustomers}
+                            disabled={isRefreshing}
+                            className="gap-2"
+                        >
+                            {isRefreshing ? (
+                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                            ) : (
+                                <div className="h-4 w-4" />
+                            )}
+                            Refresh
+                        </Button>
 
-                                        <AppTooltip
-                                            title={"Delete"}
-                                            className={`bg-red-500`}
+                        <CreateCustomer
+                            onCreate={handleNewCustomer}
+                            updateData={updateData}
+                            showModal={setShowModal}
+                            visible={showModal}
+                            onClose={handleCloseModal}
+                        >
+                            <Button className="gap-2">
+                                <UserPlus className="h-4 w-4" />
+                                Add New Doctor/Hospital
+                            </Button>
+                        </CreateCustomer>
+                    </div>
+                </div>
+
+                {/* Stats Summary */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <Card>
+                        <CardContent className="p-4 flex items-center gap-3">
+                            <div className="p-2 bg-blue-100 rounded-lg">
+                                <Building2 className="h-5 w-5 text-blue-600" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-medium text-muted-foreground">
+                                    Total
+                                </p>
+                                <p className="text-2xl font-bold">
+                                    {customers?.total || 0}
+                                </p>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardContent className="p-4 flex items-center gap-3">
+                            <div className="p-2 bg-green-100 rounded-lg">
+                                <Calendar className="h-5 w-5 text-green-600" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-medium text-muted-foreground">
+                                    S3 Accredited
+                                </p>
+                                <p className="text-2xl font-bold">
+                                    {customers.data?.filter((c) =>
+                                        handleS3Validity(c.s3_validity)
+                                    ).length || 0}
+                                </p>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardContent className="p-4 flex items-center gap-3">
+                            <div className="p-2 bg-purple-100 rounded-lg">
+                                <User className="h-5 w-5 text-purple-600" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-medium text-muted-foreground">
+                                    With Pharmacist
+                                </p>
+                                <p className="text-2xl font-bold">
+                                    {customers.data?.filter(
+                                        (c) => c.pharmacist_name
+                                    ).length || 0}
+                                </p>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardContent className="p-4 flex items-center gap-3">
+                            <div className="p-2 bg-orange-100 rounded-lg">
+                                <MapPin className="h-5 w-5 text-orange-600" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-medium text-muted-foreground">
+                                    Regions
+                                </p>
+                                <p className="text-2xl font-bold">
+                                    {new Set(
+                                        customers.data?.map((c) => c.region)
+                                    ).size || 0}
+                                </p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Customers Table */}
+                <Card>
+                    <CardHeader className="pb-3">
+                        <div className="flex items-center justify-between">
+                            <CardTitle className="text-xl flex items-center gap-2">
+                                <Building2 className="h-5 w-5" />
+                                Doctor / Hospital List
+                            </CardTitle>
+                            <div className="text-sm text-muted-foreground">
+                                Showing {customers.from} to {customers.to} of{" "}
+                                {customers.total} entries
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <div className="border rounded-lg">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="font-semibold">
+                                            Name
+                                        </TableHead>
+                                        <TableHead className="font-semibold">
+                                            Address
+                                        </TableHead>
+                                        <TableHead className="font-semibold">
+                                            Region
+                                        </TableHead>
+                                        <TableHead className="font-semibold">
+                                            Class
+                                        </TableHead>
+                                        <TableHead className="font-semibold">
+                                            Practice
+                                        </TableHead>
+                                        <TableHead className="font-semibold">
+                                            S3 Accredited
+                                        </TableHead>
+                                        <TableHead className="font-semibold">
+                                            Pharmacist
+                                        </TableHead>
+                                        <TableHead className="font-semibold">
+                                            Remarks
+                                        </TableHead>
+                                        <TableHead className="font-semibold w-[130px]">
+                                            Actions
+                                        </TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {customers?.data?.map((customer) => (
+                                        <TableRow
+                                            key={customer.id}
+                                            className="hover:bg-muted/50 transition-colors"
                                         >
-                                            <DeleteDialog
-                                                address={route(
-                                                    "customer.delete",
-                                                    customer.id
+                                            <TableCell className="font-medium">
+                                                <div className="flex items-center gap-2">
+                                                    <Building2 className="h-4 w-4 text-muted-foreground" />
+                                                    {customer.name}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex items-center gap-2 max-w-[200px]">
+                                                    <MapPin className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                                                    <span
+                                                        className="truncate"
+                                                        title={
+                                                            customer.full_address
+                                                        }
+                                                    >
+                                                        {customer.full_address}
+                                                    </span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge
+                                                    variant="outline"
+                                                    className="font-normal"
+                                                >
+                                                    {customer.region}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge
+                                                    variant="secondary"
+                                                    className="font-normal"
+                                                >
+                                                    {customer.class}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                                {customer.practice}
+                                            </TableCell>
+                                            <TableCell>
+                                                {getStatusBadge(customer)}
+                                            </TableCell>
+                                            <TableCell>
+                                                {customer.pharmacist_name ? (
+                                                    <div className="flex items-center gap-2">
+                                                        <User className="h-3 w-3 text-muted-foreground" />
+                                                        {
+                                                            customer.pharmacist_name
+                                                        }
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-muted-foreground text-sm">
+                                                        -
+                                                    </span>
                                                 )}
-                                                toastMessage={
-                                                    "Customer Deleted!"
-                                                }
-                                            >
-                                                <RiDeleteBinLine className="text-red-500" />
-                                            </DeleteDialog>
-                                        </AppTooltip>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </CardContent>
-            </Card>
+                                            </TableCell>
+                                            <TableCell>
+                                                {customer.remarks ? (
+                                                    <div className="flex items-center gap-2 max-w-[150px]">
+                                                        <MessageSquare className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                                                        <span
+                                                            className="truncate"
+                                                            title={
+                                                                customer.remarks
+                                                            }
+                                                        >
+                                                            {customer.remarks}
+                                                        </span>
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-muted-foreground text-sm">
+                                                        -
+                                                    </span>
+                                                )}
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex items-center gap-1">
+                                                    <TooltipProvider>
+                                                        <Tooltip>
+                                                            <TooltipTrigger
+                                                                asChild
+                                                            >
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    className="h-8 w-8 text-muted-foreground hover:text-blue-600 hover:bg-blue-50"
+                                                                >
+                                                                    <Eye className="h-4 w-4" />
+                                                                </Button>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p>
+                                                                    View details
+                                                                </p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    </TooltipProvider>
 
-            <div className="w-full mt-4">
+                                                    <TooltipProvider>
+                                                        <Tooltip>
+                                                            <TooltipTrigger
+                                                                asChild
+                                                            >
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    className="h-8 w-8 text-muted-foreground hover:text-orange-600 hover:bg-orange-50"
+                                                                    onClick={() =>
+                                                                        handleSetUpdateData(
+                                                                            customer.id
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <Edit className="h-4 w-4" />
+                                                                </Button>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p>
+                                                                    Edit
+                                                                    customer
+                                                                </p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    </TooltipProvider>
+
+                                                    <TooltipProvider>
+                                                        <Tooltip>
+                                                            <TooltipTrigger
+                                                                asChild
+                                                            >
+                                                                <DeleteDialog
+                                                                    address={route(
+                                                                        "customer.delete",
+                                                                        customer.id
+                                                                    )}
+                                                                    toastMessage="Customer deleted successfully"
+                                                                >
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        className="h-8 w-8 text-muted-foreground hover:text-red-600 hover:bg-red-50"
+                                                                    >
+                                                                        <Trash2 className="h-4 w-4" />
+                                                                    </Button>
+                                                                </DeleteDialog>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p>
+                                                                    Delete
+                                                                    customer
+                                                                </p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    </TooltipProvider>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+
+                                    {customers?.data?.length === 0 && (
+                                        <TableRow>
+                                            <TableCell
+                                                colSpan={9}
+                                                className="text-center py-12 text-muted-foreground"
+                                            >
+                                                <div className="flex flex-col items-center gap-3">
+                                                    <Building2 className="h-12 w-12" />
+                                                    <div>
+                                                        <p className="font-medium">
+                                                            No customers found
+                                                        </p>
+                                                        <p className="text-sm">
+                                                            Add your first
+                                                            doctor or hospital
+                                                            to get started
+                                                        </p>
+                                                    </div>
+                                                    <CreateCustomer
+                                                        onCreate={
+                                                            handleNewCustomer
+                                                        }
+                                                        updateData={updateData}
+                                                        showModal={setShowModal}
+                                                        visible={showModal}
+                                                        onClose={
+                                                            handleCloseModal
+                                                        }
+                                                    >
+                                                        <Button className="gap-2 mt-2">
+                                                            <UserPlus className="h-4 w-4" />
+                                                            Add New Customer
+                                                        </Button>
+                                                    </CreateCustomer>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Pagination */}
                 {customers?.last_page > 1 && (
-                    <AppPagination paginationData={customers} />
+                    <div className="flex justify-between items-center">
+                        <div className="text-sm text-muted-foreground">
+                            Page {customers.current_page} of{" "}
+                            {customers.last_page}
+                        </div>
+                        <AppPagination paginationData={customers} />
+                    </div>
                 )}
             </div>
         </AuthenticatedLayout>
     );
 }
-
-export default Customers;

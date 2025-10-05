@@ -1,103 +1,292 @@
-import AppPagination from "@/Components/AppPagination";
-import AppTooltip from "@/Components/AppTooltip";
-import DeleteDialog from "@/Components/Modal/Admin/DeleteDialog";
-import { Button } from "@/Components/ui/button";
-import { Card, CardContent, CardHeader } from "@/Components/ui/card";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head, Link, usePage } from "@inertiajs/react";
-import React, { useEffect } from "react";
-import { FaRegEye, FaUserDoctor } from "react-icons/fa6";
-import { FiEdit } from "react-icons/fi";
-import { RiDeleteBinLine } from "react-icons/ri";
+import { usePage } from "@inertiajs/react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Eye, Edit, Trash2, Package, Plus, Pill, Tag } from "lucide-react";
+import AppPagination from "@/components/AppPagination";
+import DeleteDialog from "@/components/Modal/Admin/DeleteDialog";
+import AuthenticatedLayout from "@/layouts/AuthenticatedLayout";
+import { Head, Link } from "@inertiajs/react";
 
 function Items() {
     const { items } = usePage().props;
 
-    useEffect(() => {
-        console.log(items);
-    }, []);
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat("en-PH", {
+            style: "currency",
+            currency: "PHP",
+        }).format(amount);
+    };
+
+    const getProductTypeVariant = (type) => {
+        const key = type.toLowerCase().replace(/\s+/g, "_");
+        return productTypeVariants[key] || "outline";
+    };
+
+    const productTypeVariants = {
+        prescription: "default",
+        over_the_counter: "secondary",
+        medical_supply: "outline",
+        equipment: "destructive",
+    };
     return (
-        <AuthenticatedLayout header={"Items Inventory"}>
+        <AuthenticatedLayout>
             <Head title="Items Inventory" />
-            <Link href={route("item.create")}>
-                <Button className="mt-6">
-                    <FaUserDoctor size={18} /> Add New Item
-                </Button>
-            </Link>
 
-            <Card className="mt-4 p-0">
-                <CardHeader className="p-4">
-                    <h1 className="font-medium text-xl">Items Inventory</h1>
-                </CardHeader>
-                <CardContent>
-                    <table className="w-full overflow-y-auto">
-                        <thead className="bg-[#eef1f9]">
-                            <tr className="border-b shadow-sm text-left">
-                                <th className="p-3">Brand Name</th>
-                                <th className="p-3">Generic Name</th>
-                                <th className="p-3">Milligrams</th>
-                                <th className="p-3">Supply</th>
-                                <th className="p-3">Catalog Price</th>
-                                <th className="p-3">Product Type</th>
-                                <th className="p-3">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {items?.data?.map((item) => (
-                                <tr
-                                    className="border-b font-normal"
-                                    key={item.id}
-                                >
-                                    <td className="p-3">{item.brand_name}</td>
-                                    <td className="p-3">{item.generic_name}</td>
-                                    <td className="p-3">{item.milligrams}</td>
-                                    <td className="p-3">{item.supply}</td>
-                                    <td className="p-3">
-                                        {item.catalog_price}
-                                    </td>
-                                    <td className="p-3">{item.product_type}</td>
-                                    <td className="p-3 flex gap-2 items-center justify-center">
-                                        <AppTooltip
-                                            title={"View"}
-                                            className={`bg-indigo-500`}
+            <div className="space-y-6">
+                {/* Header Section */}
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight">
+                            Items Inventory
+                        </h1>
+                        <p className="text-muted-foreground mt-1">
+                            Manage your pharmaceutical products and medical
+                            supplies
+                        </p>
+                    </div>
+
+                    <Button className="gap-2" asChild>
+                        <Link href={route("item.create")}>
+                            <Plus className="h-4 w-4" />
+                            Add New Item
+                        </Link>
+                    </Button>
+                </div>
+
+                {/* Items Inventory Table */}
+                <Card>
+                    <CardHeader className="pb-3">
+                        <CardTitle className="text-xl flex items-center gap-2">
+                            <Package className="h-5 w-5" />
+                            Inventory List
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <div className="border rounded-lg">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="font-semibold">
+                                            Brand Name
+                                        </TableHead>
+                                        <TableHead className="font-semibold">
+                                            Generic Name
+                                        </TableHead>
+                                        <TableHead className="font-semibold">
+                                            Milligrams
+                                        </TableHead>
+                                        <TableHead className="font-semibold">
+                                            Supply
+                                        </TableHead>
+                                        <TableHead className="font-semibold text-right">
+                                            Catalog Price
+                                        </TableHead>
+                                        <TableHead className="font-semibold">
+                                            Product Type
+                                        </TableHead>
+                                        <TableHead className="font-semibold w-[100px]">
+                                            Actions
+                                        </TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {items?.data?.map((item) => (
+                                        <TableRow
+                                            key={item.id}
+                                            className="hover:bg-muted/50"
                                         >
-                                            <Link
-                                                href={route(
-                                                    "item.show",
-                                                    item.id
+                                            <TableCell className="font-medium">
+                                                <div className="flex items-center gap-2">
+                                                    <Pill className="h-4 w-4 text-muted-foreground" />
+                                                    {item.brand_name}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="text-muted-foreground">
+                                                {item.generic_name}
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge
+                                                    variant="outline"
+                                                    className="font-mono text-xs"
+                                                >
+                                                    {item.milligrams}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge
+                                                    variant="secondary"
+                                                    className="font-normal"
+                                                >
+                                                    {item.supply}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell className="text-right font-medium">
+                                                {formatCurrency(
+                                                    item.catalog_price
                                                 )}
-                                            >
-                                                <FaRegEye className="text-indigo-500" />
-                                            </Link>
-                                        </AppTooltip>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge
+                                                    variant={getProductTypeVariant(
+                                                        item.product_type
+                                                    )}
+                                                    className="capitalize"
+                                                >
+                                                    {item.product_type}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex items-center gap-1">
+                                                    <TooltipProvider>
+                                                        <Tooltip>
+                                                            <TooltipTrigger
+                                                                asChild
+                                                            >
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    asChild
+                                                                    className="h-8 w-8 text-muted-foreground hover:text-blue-600"
+                                                                >
+                                                                    <Link
+                                                                        href={route(
+                                                                            "item.show",
+                                                                            item.id
+                                                                        )}
+                                                                    >
+                                                                        <Eye className="h-4 w-4" />
+                                                                    </Link>
+                                                                </Button>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p>
+                                                                    View details
+                                                                </p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    </TooltipProvider>
 
-                                        <AppTooltip
-                                            title={"Delete"}
-                                            className={`bg-red-500`}
-                                        >
-                                            <DeleteDialog
-                                                address={route(
-                                                    "item.delete",
-                                                    item.id
-                                                )}
-                                                toastMessage={
-                                                    "Sales Order Deleted!"
-                                                }
-                                            >
-                                                <RiDeleteBinLine className="text-red-500" />
-                                            </DeleteDialog>
-                                        </AppTooltip>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </CardContent>
-            </Card>
+                                                    <TooltipProvider>
+                                                        <Tooltip>
+                                                            <TooltipTrigger
+                                                                asChild
+                                                            >
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    asChild
+                                                                    className="h-8 w-8 text-muted-foreground hover:text-orange-600"
+                                                                >
+                                                                    <Link
+                                                                        href={route(
+                                                                            "item.edit",
+                                                                            item.id
+                                                                        )}
+                                                                    >
+                                                                        <Edit className="h-4 w-4" />
+                                                                    </Link>
+                                                                </Button>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p>Edit item</p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    </TooltipProvider>
 
-            <div className="w-full mt-4">
+                                                    <TooltipProvider>
+                                                        <Tooltip>
+                                                            <TooltipTrigger
+                                                                asChild
+                                                            >
+                                                                <DeleteDialog
+                                                                    address={route(
+                                                                        "item.delete",
+                                                                        item.id
+                                                                    )}
+                                                                    toastMessage="Item deleted successfully"
+                                                                >
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        className="h-8 w-8 text-muted-foreground hover:text-red-600"
+                                                                    >
+                                                                        <Trash2 className="h-4 w-4" />
+                                                                    </Button>
+                                                                </DeleteDialog>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p>
+                                                                    Delete item
+                                                                </p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    </TooltipProvider>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+
+                                    {items?.data?.length === 0 && (
+                                        <TableRow>
+                                            <TableCell
+                                                colSpan={7}
+                                                className="text-center py-12 text-muted-foreground"
+                                            >
+                                                <div className="flex flex-col items-center gap-3">
+                                                    <Package className="h-12 w-12" />
+                                                    <div>
+                                                        <p className="font-medium">
+                                                            No items found
+                                                        </p>
+                                                        <p className="text-sm">
+                                                            Add your first item
+                                                            to start managing
+                                                            inventory
+                                                        </p>
+                                                    </div>
+                                                    <Button
+                                                        className="gap-2 mt-2"
+                                                        asChild
+                                                    >
+                                                        <Link
+                                                            href={route(
+                                                                "item.create"
+                                                            )}
+                                                        >
+                                                            <Plus className="h-4 w-4" />
+                                                            Add New Item
+                                                        </Link>
+                                                    </Button>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Pagination */}
                 {items?.last_page > 1 && (
-                    <AppPagination paginationData={items} />
+                    <div className="flex justify-center">
+                        <AppPagination paginationData={items} />
+                    </div>
                 )}
             </div>
         </AuthenticatedLayout>

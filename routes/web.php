@@ -38,8 +38,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/items/create', [ItemController::class, 'create'])->name('item.create');
     Route::post('/items/create', [ItemController::class, 'store'])->name('item.store');
     Route::get('/item/{id}', [ItemController::class, 'show'])->name('item.show');
-    Route::put('/item/{id}', [ItemController::class, 'update'])->name('item.update');
+    Route::post('/item/{id}', [ItemController::class, 'update'])->name('item.update');
     Route::delete('/item/{id}', [ItemController::class, 'destroy'])->name('item.delete');
+    Route::get('/item/edit/{id}', [ItemController::class, 'edit'])->name('item.edit');
+    Route::delete('/item/image/{id}', [ItemController::class, 'deleteImage'])->name('item.image.delete');
 
     Route::get('/sales-orders', [SalesOrderController::class, 'index'])->name('sales.order.index');
     Route::get('/sales-order/{id}', [SalesOrderController::class, 'show'])->name('sales.order.show');

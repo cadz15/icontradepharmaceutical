@@ -72,34 +72,6 @@ const items = [
             },
         ],
     },
-    // {
-    //     title: "Settings",
-    //     route: "dashboard",
-    //     icon: Settings2,
-    //     isSingle: false,
-    //     items: [
-    //         {
-    //             title: "General",
-    //             url: "#",
-    //             route: "dashboard",
-    //         },
-    //         {
-    //             title: "Team",
-    //             url: "#",
-    //             route: "dashboard",
-    //         },
-    //         {
-    //             title: "Billing",
-    //             url: "#",
-    //             route: "dashboard",
-    //         },
-    //         {
-    //             title: "Limits",
-    //             url: "#",
-    //             route: "dashboard",
-    //         },
-    //     ],
-    // },
 ];
 
 function AppSidebar() {

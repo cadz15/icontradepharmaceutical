@@ -95,19 +95,129 @@ class ItemController extends Controller
     }
 
     /**
+     * Edit the specified resource.
+     */
+    public function edit($id)
+    {
+        $item = Item::where('id', $id)->with(['images'])->first();
+        $images = ItemImage::where('item_id', $id)->get();
+
+        if($item) {
+            return Inertia::render('Admin/ItemEdit', [
+                'item' => $item,
+                'images' => $images
+            ]);
+        }
+
+
+        return abort(404);
+    }
+
+    /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Item $item)
+    public function update(Request $request, $id)
     {
-        //
+        $validated = $request->validate([
+            'brand_name' => ['required', 'string'],
+            'generic_name' => ['sometimes'],
+            'milligrams' => ['sometimes'],
+            'supply' => ['sometimes'],
+            'catalog_price' => ['required'],
+            'product_type' => ['required'],
+            'images' => ['required', 'array'],
+            'images.*' => ['image']
+        ]);
+
+        $item = Item::where('id', $id)->first();
+        
+        if(!$item) return abort(404);
+
+        $item->update([
+            'brand_name' => $validated['brand_name'],
+            'generic_name' => $request->get('generic_name'),
+            'milligrams' =>$request->get('milligrams'),
+            'supply' =>$request->get('supply'),
+            'catalog_price' => $validated['catalog_price'],
+            'product_type' => $validated['product_type'],
+            'inventory' => 0
+        ]);
+
+        foreach ($request->file('images') as $image) {
+            $fileName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $folderName = "item". $item->id;
+            $path = $image->storeAs($folderName, $fileName, 'public');
+            $urls[] = Storage::url($path);
+
+            ItemImage::create([
+                'item_id' => $item->id,
+                'link' => $path
+            ]);
+        }
+
+
+        $items = Item::with('images')->oldest('brand_name')->paginate(15);
+
+        return Inertia::render('Admin/Items', [
+            'items' => $items
+        ]);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Item $item)
+    public function destroy($id)
     {
-        //
+        $item = Item::where('id', $id)->first();
+        
+        if($item){
+            $item->delete();
+
+            //get 1 file
+            $itemImages = ItemImage::where('item_id', $item->id)->first();
+
+            //and delete all folder
+            $path =  $itemImages->link;
+
+            $folderName = explode('/', $path);
+
+            if (Storage::disk('public')->exists($folderName)) {
+                Storage::disk('public')->delete($folderName);
+            }
+
+            ItemImage::where('item_id', $item->id)->delete();
+
+            return redirect()->route('item.index')->with('success', 'Post deleted successfully.');
+        }
+
+        return abort(404);
+    }
+
+
+    public function deleteImage($id)
+    {
+        $image = ItemImage::where('id', $id)->first();
+        if(!$image) abort(404);
+
+        
+        // $path = storage_path('app/public/' . $image->link);
+        $path =  $image->link;
+
+        if (Storage::disk('public')->exists($path)) {
+
+            Storage::disk('public')->delete($path);
+            $image->delete();
+
+            return response()->json([
+                'message' => 'Image Deleted',
+                'images' => ItemImage::where('item_id', $image->item_id)->get()
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Unable to delete image',
+            'images' => ItemImage::where('item_id', $image->item_id)->get()
+        ], 403);
     }
 
 

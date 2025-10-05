@@ -1,126 +1,322 @@
-import AppTooltip from "@/Components/AppTooltip";
-import DeleteDialog from "@/Components/Modal/Admin/DeleteDialog";
-import { Card, CardContent, CardHeader } from "@/Components/ui/card";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head, Link, usePage } from "@inertiajs/react";
-import React from "react";
-import { FaRegEye } from "react-icons/fa6";
-import { FiEdit } from "react-icons/fi";
-import { RiDeleteBinLine } from "react-icons/ri";
-
-const items = {
-    data: [
-        {
-            id: 1,
-            sales_order_number: "G-0001",
-            customer: { name: "Juan Dela Cruz", short_address: "Ormoc City" },
-            medical_representative: { name: "Med Rep 1" },
-            total: 10000,
-            date_sold: "July 30, 2025",
-            status: "pending",
-        },
-        {
-            id: 2,
-            sales_order_number: "G-0001",
-            customer: { name: "Juan Dela Cruz", short_address: "Ormoc City" },
-            medical_representative: { name: "Med Rep 1" },
-            total: 10000,
-            date_sold: "July 30, 2025",
-            status: "pending",
-        },
-    ],
-};
+import { usePage } from "@inertiajs/react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Eye, Edit, Trash2, FileText, Plus } from "lucide-react";
+import AppPagination from "@/components/AppPagination";
+import DeleteDialog from "@/components/Modal/Admin/DeleteDialog";
+import AuthenticatedLayout from "@/layouts/AuthenticatedLayout";
+import { Head, Link } from "@inertiajs/react";
 
 function SalesOrder() {
     const { sales } = usePage().props;
 
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat("en-PH", {
+            style: "currency",
+            currency: "PHP",
+        }).format(amount);
+    };
+
+    const formatDate = (dateString) => {
+        return new Date(dateString).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
+    };
+
     return (
-        <AuthenticatedLayout header={"Sales Order"}>
+        <AuthenticatedLayout>
             <Head title="Sales Orders" />
 
-            <Card className="mt-4 p-0">
-                <CardHeader className="p-4">
-                    <h1 className="font-medium text-xl">Sales Order</h1>
-                </CardHeader>
-                <CardContent>
-                    <table className="w-full overflow-y-auto">
-                        <thead className="bg-[#eef1f9]">
-                            <tr className="border-b shadow-sm text-left">
-                                <th className="p-3">Sales ID</th>
-                                <th className="p-3">Customer</th>
-                                <th className="p-3">Address</th>
-                                <th className="p-3">Total</th>
-                                <th className="p-3">Med Rep</th>
-                                <th className="p-3">Status</th>
-                                <th className="p-3">Date</th>
-                                <th className="p-3">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {sales?.data?.map((saleOrder) => (
-                                <tr
-                                    className="border-b font-normal"
-                                    key={saleOrder.id}
-                                >
-                                    <td className="p-3">
-                                        {saleOrder.sales_order_number}
-                                    </td>
-                                    <td className="p-3">
-                                        {saleOrder.customer?.name}
-                                    </td>
-                                    <td className="p-3">
-                                        {saleOrder.customer?.short_address}
-                                    </td>
-                                    <td className="p-3">{saleOrder.total}</td>
-                                    <td className="p-3">
-                                        {saleOrder.medical_representative?.name}
-                                    </td>
-                                    <td className="p-3">{saleOrder.status}</td>
-                                    <td className="p-3">
-                                        {saleOrder.date_sold}
-                                    </td>
-                                    <td className="p-3 flex gap-2">
-                                        <AppTooltip
-                                            title={"View"}
-                                            className={`bg-indigo-500`}
-                                        >
-                                            <Link
-                                                href={route(
-                                                    "sales.order.show",
-                                                    saleOrder.id
-                                                )}
-                                            >
-                                                <FaRegEye className="text-indigo-500" />
-                                            </Link>
-                                        </AppTooltip>
+            <div className="space-y-6">
+                {/* Header Section */}
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight">
+                            Sales Orders
+                        </h1>
+                        <p className="text-muted-foreground mt-1">
+                            Manage and track all sales orders
+                        </p>
+                    </div>
 
-                                        <AppTooltip
-                                            title={"Delete"}
-                                            className={`bg-red-500`}
-                                        >
-                                            <DeleteDialog
-                                                address={route(
-                                                    "sales.order.delete",
-                                                    saleOrder.id
-                                                )}
-                                                toastMessage={
-                                                    "Sales Order Deleted!"
-                                                }
-                                            >
-                                                <RiDeleteBinLine className="text-red-500" />
-                                            </DeleteDialog>
-                                        </AppTooltip>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </CardContent>
-            </Card>
+                    {/* <Button className="gap-2" asChild>
+                        <Link href={route("sales.order.create")}>
+                            <Plus className="h-4 w-4" />
+                            New Sales Order
+                        </Link>
+                    </Button> */}
+                </div>
 
-            <div className="w-full mt-4">
-                {items?.last_page > 1 && (
-                    <AppPagination paginationData={items} />
+                {/* Sales Orders Table */}
+                <Card>
+                    <CardHeader className="pb-3">
+                        <CardTitle className="text-xl flex items-center gap-2">
+                            <FileText className="h-5 w-5" />
+                            Sales Order List
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <div className="border rounded-lg">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="font-semibold">
+                                            Sales ID
+                                        </TableHead>
+                                        <TableHead className="font-semibold">
+                                            Customer
+                                        </TableHead>
+                                        <TableHead className="font-semibold">
+                                            Address
+                                        </TableHead>
+                                        <TableHead className="font-semibold text-right">
+                                            Total
+                                        </TableHead>
+                                        <TableHead className="font-semibold">
+                                            Med Rep
+                                        </TableHead>
+                                        <TableHead className="font-semibold">
+                                            Status
+                                        </TableHead>
+                                        <TableHead className="font-semibold">
+                                            Date
+                                        </TableHead>
+                                        <TableHead className="font-semibold w-[100px]">
+                                            Actions
+                                        </TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {sales?.data?.map((saleOrder) => (
+                                        <TableRow
+                                            key={saleOrder.id}
+                                            className="hover:bg-muted/50"
+                                        >
+                                            <TableCell className="font-medium">
+                                                <div className="flex items-center gap-2">
+                                                    <FileText className="h-4 w-4 text-muted-foreground" />
+                                                    {
+                                                        saleOrder.sales_order_number
+                                                    }
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="font-medium">
+                                                {saleOrder.customer?.name}
+                                            </TableCell>
+                                            <TableCell className="max-w-[200px]">
+                                                <div
+                                                    className="truncate"
+                                                    title={
+                                                        saleOrder.customer
+                                                            ?.short_address
+                                                    }
+                                                >
+                                                    {
+                                                        saleOrder.customer
+                                                            ?.short_address
+                                                    }
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="text-right font-medium">
+                                                {formatCurrency(
+                                                    saleOrder.total
+                                                )}
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge
+                                                    variant="outline"
+                                                    className="font-normal"
+                                                >
+                                                    {
+                                                        saleOrder
+                                                            .medical_representative
+                                                            ?.name
+                                                    }
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge
+                                                    variant={
+                                                        statusVariant[
+                                                            saleOrder.status
+                                                        ] || "outline"
+                                                    }
+                                                    className={
+                                                        statusColors[
+                                                            saleOrder.status
+                                                        ] || ""
+                                                    }
+                                                >
+                                                    {saleOrder.status
+                                                        .charAt(0)
+                                                        .toUpperCase() +
+                                                        saleOrder.status.slice(
+                                                            1
+                                                        )}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell className="text-muted-foreground">
+                                                {formatDate(
+                                                    saleOrder.date_sold
+                                                )}
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex items-center gap-1">
+                                                    <TooltipProvider>
+                                                        <Tooltip>
+                                                            <TooltipTrigger
+                                                                asChild
+                                                            >
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    asChild
+                                                                    className="h-8 w-8 text-muted-foreground hover:text-blue-600"
+                                                                >
+                                                                    <Link
+                                                                        href={route(
+                                                                            "sales.order.show",
+                                                                            saleOrder.id
+                                                                        )}
+                                                                    >
+                                                                        <Eye className="h-4 w-4" />
+                                                                    </Link>
+                                                                </Button>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p>
+                                                                    View details
+                                                                </p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    </TooltipProvider>
+
+                                                    <TooltipProvider>
+                                                        <Tooltip>
+                                                            <TooltipTrigger
+                                                                asChild
+                                                            >
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    asChild
+                                                                    className="h-8 w-8 text-muted-foreground hover:text-orange-600"
+                                                                >
+                                                                    <Link
+                                                                        href={route(
+                                                                            "sales.order.edit",
+                                                                            saleOrder.id
+                                                                        )}
+                                                                    >
+                                                                        <Edit className="h-4 w-4" />
+                                                                    </Link>
+                                                                </Button>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p>
+                                                                    Edit order
+                                                                </p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    </TooltipProvider>
+
+                                                    <TooltipProvider>
+                                                        <Tooltip>
+                                                            <TooltipTrigger
+                                                                asChild
+                                                            >
+                                                                <DeleteDialog
+                                                                    address={route(
+                                                                        "sales.order.delete",
+                                                                        saleOrder.id
+                                                                    )}
+                                                                    toastMessage="Sales order deleted successfully"
+                                                                >
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        className="h-8 w-8 text-muted-foreground hover:text-red-600"
+                                                                    >
+                                                                        <Trash2 className="h-4 w-4" />
+                                                                    </Button>
+                                                                </DeleteDialog>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p>
+                                                                    Delete order
+                                                                </p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    </TooltipProvider>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+
+                                    {sales?.data?.length === 0 && (
+                                        <TableRow>
+                                            <TableCell
+                                                colSpan={8}
+                                                className="text-center py-12 text-muted-foreground"
+                                            >
+                                                <div className="flex flex-col items-center gap-3">
+                                                    <FileText className="h-12 w-12" />
+                                                    <div>
+                                                        <p className="font-medium">
+                                                            No sales orders
+                                                            found
+                                                        </p>
+                                                        <p className="text-sm">
+                                                            Create your first
+                                                            sales order to get
+                                                            started
+                                                        </p>
+                                                    </div>
+                                                    {/* <Button
+                                                        className="gap-2 mt-2"
+                                                        asChild
+                                                    >
+                                                        <Link
+                                                            href={route(
+                                                                "sales.order.create"
+                                                            )}
+                                                        >
+                                                            <Plus className="h-4 w-4" />
+                                                            Create Sales Order
+                                                        </Link>
+                                                    </Button> */}
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Pagination */}
+                {sales?.last_page > 1 && (
+                    <div className="flex justify-center">
+                        <AppPagination paginationData={sales} />
+                    </div>
                 )}
             </div>
         </AuthenticatedLayout>

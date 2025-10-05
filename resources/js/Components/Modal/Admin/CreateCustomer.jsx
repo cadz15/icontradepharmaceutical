@@ -1,4 +1,4 @@
-import { Button } from "@/Components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogClose,
@@ -8,19 +8,29 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/Components/ui/dialog";
-import { Input } from "@/Components/ui/input";
-import { Label } from "@/Components/ui/label";
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/Components/ui/select";
+} from "@/components/ui/select";
 import { useForm } from "@inertiajs/react";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
+import {
+    Building2,
+    MapPin,
+    User,
+    Calendar,
+    FileText,
+    AlertCircle,
+    Loader2,
+} from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const regions = [
     "Region 1",
@@ -43,6 +53,12 @@ const regions = [
     "BARMM",
 ];
 
+const customerClasses = [
+    { value: "A", label: "CLASS A: DISPENSING/ WITH PURCHASING POWER" },
+    { value: "B", label: "CLASS B: PRESCRIBING ONLY" },
+    { value: "C", label: "CLASS C: NO COMMITMENT" },
+];
+
 function CreateCustomer({
     className,
     onCreate,
@@ -50,6 +66,7 @@ function CreateCustomer({
     updateData = null,
     showModal,
     visible,
+    onClose,
 }) {
     const { data, setData, post, put, processing, errors, reset } = useForm({
         name: "",
@@ -73,356 +90,498 @@ function CreateCustomer({
         setData(name, value);
     };
 
-    const handleRegionChange = (text) => {
-        setData("region", text);
+    const handleRegionChange = (value) => {
+        setData("region", value);
     };
 
-    const handleClassChange = (text) => {
-        setData("class", text);
+    const handleClassChange = (value) => {
+        setData("class", value);
     };
 
     const handleModalVisibleToggle = (visible) => {
         setIsOpen(visible);
         showModal(visible);
+        if (!visible && onClose) {
+            onClose();
+        }
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
         if (updateData) {
             put(route("customer.update", updateData.id), {
-                data: data,
+                data,
                 onSuccess: () => {
-                    console.log("Customer updated Successfully");
                     reset();
-                    setIsOpen(false); // Close the modal after success
+                    setIsOpen(false);
                     toast.success("Customer successfully updated!");
-
-                    // Call the onCreate callback to notify the parent to refresh the list
-                    if (onCreate) {
-                        onCreate();
-                    }
+                    onCreate();
                 },
                 onError: (errors) => {
-                    console.log("Errors:", errors);
+                    console.error("Update errors:", errors);
+                    toast.error(
+                        "Failed to update customer. Please check the form."
+                    );
                 },
             });
         } else {
             post(route("customer.store"), {
-                data: data,
+                data,
                 onSuccess: () => {
-                    console.log("Customer Created Successfully");
                     reset();
-                    setIsOpen(false); // Close the modal after success
+                    setIsOpen(false);
                     toast.success("Customer successfully created!");
-
-                    // Call the onCreate callback to notify the parent to refresh the list
-                    if (onCreate) {
-                        onCreate();
-                    }
+                    onCreate();
                 },
                 onError: (errors) => {
-                    console.log("Errors:", errors);
+                    console.error("Creation errors:", errors);
+                    toast.error(
+                        "Failed to create customer. Please check the form."
+                    );
                 },
+            });
+        }
+    };
+
+    const handleReset = () => {
+        reset();
+        if (updateData) {
+            // Reset form with updateData if editing
+            Object.keys(updateData).forEach((key) => {
+                const value = updateData[key] || "";
+                setData(key, value);
             });
         }
     };
 
     useEffect(() => {
         if (updateData) {
-            setData("name", updateData.name ?? "");
-            setData("full_address", updateData.full_address ?? "");
-            setData("short_address", updateData.short_address ?? "");
-            setData("region", updateData.region ?? "");
-            setData("class", updateData.class ?? "");
-            setData("practice", updateData.practice ?? "");
-            setData("s3_license", updateData.s3_license ?? "");
-            setData("s3_validity", updateData.s3_validity ?? "");
-            setData("pharmacist_name", updateData.pharmacist_name ?? "");
-            setData("prc_id", updateData.prc_id ?? "");
-            setData("prc_validity", updateData.prc_validity ?? "");
-            setData("remarks", updateData.remarks ?? "");
+            setData({
+                name: updateData.name ?? "",
+                full_address: updateData.full_address ?? "",
+                short_address: updateData.short_address ?? "",
+                region: updateData.region ?? "",
+                class: updateData.class ?? "",
+                practice: updateData.practice ?? "",
+                s3_license: updateData.s3_license ?? "",
+                s3_validity: updateData.s3_validity ?? "",
+                pharmacist_name: updateData.pharmacist_name ?? "",
+                prc_id: updateData.prc_id ?? "",
+                prc_validity: updateData.prc_validity ?? "",
+                remarks: updateData.remarks ?? "",
+            });
         }
-        console.log(updateData);
+    }, [updateData, setData]);
 
-        handleModalVisibleToggle(visible);
+    useEffect(() => {
+        setIsOpen(visible);
     }, [visible]);
+
+    const hasErrors = Object.keys(errors).length > 0;
 
     return (
         <Dialog open={isOpen} onOpenChange={handleModalVisibleToggle}>
             <DialogTrigger asChild>
-                <Button
-                    className={className}
-                    onClick={() => handleModalVisibleToggle(true)}
-                >
-                    {children}
-                </Button>
+                <Button className={className}>{children}</Button>
             </DialogTrigger>
-            <DialogContent className="max-h-[calc(100dvh-4rem)] overflow-y-auto">
+            <DialogContent className="max-h-[calc(100dvh-4rem)] overflow-y-auto max-w-2xl">
                 <DialogHeader>
-                    {updateData ? (
-                        <>
-                            <DialogTitle>Update Doctor / Hospital</DialogTitle>
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-primary/10 rounded-lg">
+                            <Building2 className="h-6 w-6 text-primary" />
+                        </div>
+                        <div>
+                            <DialogTitle className="text-xl">
+                                {updateData
+                                    ? "Update Doctor / Hospital"
+                                    : "Create Doctor / Hospital"}
+                            </DialogTitle>
                             <DialogDescription>
-                                Update doctor or hospital to the system.
+                                {updateData
+                                    ? "Update existing doctor or hospital information."
+                                    : "Add a new doctor or hospital to the system."}
                             </DialogDescription>
-                        </>
-                    ) : (
-                        <>
-                            <DialogTitle>Create Doctor / Hospital</DialogTitle>
-                            <DialogDescription>
-                                Add a new doctor or hospital to the system.
-                            </DialogDescription>
-                        </>
-                    )}
+                        </div>
+                    </div>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit} className="grid gap-4">
-                    <div className="grid gap-2">
-                        <Label htmlFor="name">
-                            Name <span className="text-red-500">*</span>
-                        </Label>
-                        <Input
-                            id="name"
-                            name="name"
-                            placeholder="Dra. Juana Dela Cruz"
-                            value={data.name}
-                            onChange={handleChange}
-                        />
-                        {errors.name && (
-                            <p className="text-sm text-red-500">
-                                {errors.name}
-                            </p>
-                        )}
-                    </div>
-                    <div className="grid gap-2">
-                        <Label htmlFor="full_address">
-                            Full Address<span className="text-red-500">*</span>
-                        </Label>
-                        <Input
-                            id="full_address"
-                            name="full_address"
-                            placeholder="JLR Bldg, Camagong St., Purok Sampaguita, Brgy. Punta, Ormoc City"
-                            value={data.full_address}
-                            onChange={handleChange}
-                        />
-                        {errors.full_address && (
-                            <p className="text-sm text-red-500">
-                                {errors.full_address}
-                            </p>
-                        )}
-                    </div>
-                    <div className="flex gap-2">
-                        <div className="w-full md:w-1/2">
-                            <Label htmlFor="short_address">
-                                Short Address
-                                <span className="text-red-500">*</span>
-                            </Label>
-                            <Input
-                                id="short_address"
-                                name="short_address"
-                                placeholder="Ormoc City"
-                                value={data.short_address}
-                                onChange={handleChange}
-                            />
-                            {errors.short_address && (
-                                <p className="text-sm text-red-500">
-                                    {errors.short_address}
-                                </p>
-                            )}
+                {hasErrors && (
+                    <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>
+                            Please check the form for errors and try again.
+                        </AlertDescription>
+                    </Alert>
+                )}
+
+                <form onSubmit={handleSubmit} className="grid gap-6">
+                    {/* Basic Information */}
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-semibold flex items-center gap-2">
+                            <Building2 className="h-4 w-4" />
+                            Basic Information
+                        </h3>
+
+                        <div className="grid gap-4">
+                            <div className="space-y-2">
+                                <Label
+                                    htmlFor="name"
+                                    className="text-sm font-medium"
+                                >
+                                    Name{" "}
+                                    <span className="text-destructive">*</span>
+                                </Label>
+                                <Input
+                                    id="name"
+                                    name="name"
+                                    placeholder="Dra. Juana Dela Cruz"
+                                    value={data.name}
+                                    onChange={handleChange}
+                                    className={
+                                        errors.name ? "border-destructive" : ""
+                                    }
+                                />
+                                {errors.name && (
+                                    <p className="text-sm text-destructive flex items-center gap-1">
+                                        <AlertCircle className="h-3 w-3" />
+                                        {errors.name}
+                                    </p>
+                                )}
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label
+                                    htmlFor="full_address"
+                                    className="text-sm font-medium"
+                                >
+                                    Full Address{" "}
+                                    <span className="text-destructive">*</span>
+                                </Label>
+                                <Input
+                                    id="full_address"
+                                    name="full_address"
+                                    placeholder="JLR Bldg, Camagong St., Purok Sampaguita, Brgy. Punta, Ormoc City"
+                                    value={data.full_address}
+                                    onChange={handleChange}
+                                    className={
+                                        errors.full_address
+                                            ? "border-destructive"
+                                            : ""
+                                    }
+                                />
+                                {errors.full_address && (
+                                    <p className="text-sm text-destructive flex items-center gap-1">
+                                        <AlertCircle className="h-3 w-3" />
+                                        {errors.full_address}
+                                    </p>
+                                )}
+                            </div>
+
+                            <div className="grid gap-4 md:grid-cols-2">
+                                <div className="space-y-2">
+                                    <Label
+                                        htmlFor="short_address"
+                                        className="text-sm font-medium"
+                                    >
+                                        Short Address{" "}
+                                        <span className="text-destructive">
+                                            *
+                                        </span>
+                                    </Label>
+                                    <Input
+                                        id="short_address"
+                                        name="short_address"
+                                        placeholder="Ormoc City"
+                                        value={data.short_address}
+                                        onChange={handleChange}
+                                        className={
+                                            errors.short_address
+                                                ? "border-destructive"
+                                                : ""
+                                        }
+                                    />
+                                    {errors.short_address && (
+                                        <p className="text-sm text-destructive flex items-center gap-1">
+                                            <AlertCircle className="h-3 w-3" />
+                                            {errors.short_address}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label
+                                        htmlFor="region"
+                                        className="text-sm font-medium"
+                                    >
+                                        Region{" "}
+                                        <span className="text-destructive">
+                                            *
+                                        </span>
+                                    </Label>
+                                    <Select
+                                        onValueChange={handleRegionChange}
+                                        value={data.region}
+                                    >
+                                        <SelectTrigger
+                                            className={
+                                                errors.region
+                                                    ? "border-destructive"
+                                                    : ""
+                                            }
+                                        >
+                                            <SelectValue placeholder="Select region" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {regions.map((region) => (
+                                                <SelectItem
+                                                    key={region}
+                                                    value={region}
+                                                >
+                                                    {region}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {errors.region && (
+                                        <p className="text-sm text-destructive flex items-center gap-1">
+                                            <AlertCircle className="h-3 w-3" />
+                                            {errors.region}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="grid gap-4 md:grid-cols-2">
+                                <div className="space-y-2">
+                                    <Label
+                                        htmlFor="class"
+                                        className="text-sm font-medium"
+                                    >
+                                        Class{" "}
+                                        <span className="text-destructive">
+                                            *
+                                        </span>
+                                    </Label>
+                                    <Select
+                                        onValueChange={handleClassChange}
+                                        value={data.class}
+                                    >
+                                        <SelectTrigger
+                                            className={
+                                                errors.class
+                                                    ? "border-destructive"
+                                                    : ""
+                                            }
+                                        >
+                                            <SelectValue placeholder="Select class" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {customerClasses.map(
+                                                (classItem) => (
+                                                    <SelectItem
+                                                        key={classItem.value}
+                                                        value={classItem.value}
+                                                    >
+                                                        {classItem.label}
+                                                    </SelectItem>
+                                                )
+                                            )}
+                                        </SelectContent>
+                                    </Select>
+                                    {errors.class && (
+                                        <p className="text-sm text-destructive flex items-center gap-1">
+                                            <AlertCircle className="h-3 w-3" />
+                                            {errors.class}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label
+                                        htmlFor="practice"
+                                        className="text-sm font-medium"
+                                    >
+                                        Practice{" "}
+                                        <span className="text-destructive">
+                                            *
+                                        </span>
+                                    </Label>
+                                    <Input
+                                        id="practice"
+                                        name="practice"
+                                        placeholder="Pediatrics"
+                                        value={data.practice}
+                                        onChange={handleChange}
+                                        className={
+                                            errors.practice
+                                                ? "border-destructive"
+                                                : ""
+                                        }
+                                    />
+                                    {errors.practice && (
+                                        <p className="text-sm text-destructive flex items-center gap-1">
+                                            <AlertCircle className="h-3 w-3" />
+                                            {errors.practice}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
                         </div>
-                        <div className="w-full md:w-1/2">
-                            <Label htmlFor="region">
-                                Region<span className="text-red-500">*</span>
-                            </Label>
-                            <Select
-                                onValueChange={handleRegionChange}
-                                value={data.region}
+                    </div>
+
+                    {/* License Information */}
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-semibold flex items-center gap-2">
+                            <FileText className="h-4 w-4" />
+                            License Information
+                        </h3>
+
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <div className="space-y-2">
+                                <Label
+                                    htmlFor="s3_license"
+                                    className="text-sm font-medium"
+                                >
+                                    S3 License
+                                </Label>
+                                <Input
+                                    id="s3_license"
+                                    name="s3_license"
+                                    placeholder="A"
+                                    value={data.s3_license}
+                                    onChange={handleChange}
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label
+                                    htmlFor="s3_validity"
+                                    className="text-sm font-medium"
+                                >
+                                    S3 Validity
+                                </Label>
+                                <Input
+                                    id="s3_validity"
+                                    name="s3_validity"
+                                    type="date"
+                                    value={data.s3_validity}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Pharmacist Information */}
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-semibold flex items-center gap-2">
+                            <User className="h-4 w-4" />
+                            Pharmacist Information
+                        </h3>
+
+                        <div className="space-y-2">
+                            <Label
+                                htmlFor="pharmacist_name"
+                                className="text-sm font-medium"
                             >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Region" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {regions.map((region) => (
-                                        <SelectItem key={region} value={region}>
-                                            {region}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-
-                            {errors.region && (
-                                <p className="text-sm text-red-500">
-                                    {errors.region}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-                    <div className="flex gap-2">
-                        <div className="w-full md:w-1/3">
-                            <Label htmlFor="class">
-                                Class<span className="text-red-500">*</span>
-                            </Label>
-                            <Select
-                                onValueChange={handleClassChange}
-                                value={data.class}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Class" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value={"A"}>
-                                        CLASS A: DESPENCING/ WITH PURCHASING
-                                        POWER
-                                    </SelectItem>
-                                    <SelectItem value={"B"}>
-                                        CLASS B: PRESCRIBING ONLY
-                                    </SelectItem>
-                                    <SelectItem value={"C"}>
-                                        CLASS C: NO COMMITMENT
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
-                            {errors.class && (
-                                <p className="text-sm text-red-500">
-                                    {errors.class}
-                                </p>
-                            )}
-                        </div>
-                        <div className="w-full md:w-2/3">
-                            <Label htmlFor="practice">
-                                Practice<span className="text-red-500">*</span>
+                                Pharmacist Name
                             </Label>
                             <Input
-                                id="practice"
-                                name="practice"
-                                placeholder="Pediatric"
-                                value={data.practice}
+                                id="pharmacist_name"
+                                name="pharmacist_name"
+                                placeholder="Juan Dela Cruz"
+                                value={data.pharmacist_name}
                                 onChange={handleChange}
                             />
-                            {errors.practice && (
-                                <p className="text-sm text-red-500">
-                                    {errors.practice}
-                                </p>
-                            )}
                         </div>
-                    </div>
-                    <div className="flex gap-2">
-                        <div className="w-full md:w-1/3">
-                            <Label htmlFor="s3_license">S3 License</Label>
-                            <Input
-                                id="s3_license"
-                                name="s3_license"
-                                placeholder="A"
-                                value={data.s3_license}
-                                onChange={handleChange}
-                            />
-                            {errors.s3_license && (
-                                <p className="text-sm text-red-500">
-                                    {errors.s3_license}
-                                </p>
-                            )}
-                        </div>
-                        <div className="w-full md:w-2/3">
-                            <Label htmlFor="s3_validity">S3 Validity</Label>
-                            <Input
-                                id="s3_validity"
-                                name="s3_validity"
-                                placeholder="Pediatric"
-                                value={data.s3_validity}
-                                onChange={handleChange}
-                            />
-                            {errors.s3_validity && (
-                                <p className="text-sm text-red-500">
-                                    {errors.s3_validity}
-                                </p>
-                            )}
+
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <div className="space-y-2">
+                                <Label
+                                    htmlFor="prc_id"
+                                    className="text-sm font-medium"
+                                >
+                                    PRC ID
+                                </Label>
+                                <Input
+                                    id="prc_id"
+                                    name="prc_id"
+                                    placeholder="1234567"
+                                    value={data.prc_id}
+                                    onChange={handleChange}
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label
+                                    htmlFor="prc_validity"
+                                    className="text-sm font-medium"
+                                >
+                                    PRC Validity
+                                </Label>
+                                <Input
+                                    id="prc_validity"
+                                    name="prc_validity"
+                                    type="date"
+                                    value={data.prc_validity}
+                                    onChange={handleChange}
+                                />
+                            </div>
                         </div>
                     </div>
 
-                    <div className="grid gap-2">
-                        <Label htmlFor="pharmacist_name">Pharmacist</Label>
-                        <Input
-                            id="pharmacist_name"
-                            name="pharmacist_name"
-                            placeholder="Juan Dela Cruz"
-                            value={data.pharmacist_name}
-                            onChange={handleChange}
-                        />
-                        {errors.pharmacist_name && (
-                            <p className="text-sm text-red-500">
-                                {errors.pharmacist_name}
-                            </p>
-                        )}
-                    </div>
+                    {/* Additional Information */}
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-semibold flex items-center gap-2">
+                            <MapPin className="h-4 w-4" />
+                            Additional Information
+                        </h3>
 
-                    <div className="flex gap-2">
-                        <div className="w-full md:w-1/3">
-                            <Label htmlFor="prc_id">PRC ID</Label>
-                            <Input
-                                id="prc_id"
-                                name="prc_id"
-                                placeholder="1234567"
-                                value={data.prc_id}
-                                onChange={handleChange}
-                            />
-                            {errors.prc_id && (
-                                <p className="text-sm text-red-500">
-                                    {errors.prc_id}
-                                </p>
-                            )}
-                        </div>
-                        <div className="w-full md:w-2/3">
-                            <Label htmlFor="prc_validity">PRC Validity</Label>
-                            <Input
-                                id="prc_validity"
-                                name="prc_validity"
-                                placeholder="June 30, 2030"
-                                value={data.prc_validity}
-                                onChange={handleChange}
-                            />
-                            {errors.prc_validity && (
-                                <p className="text-sm text-red-500">
-                                    {errors.prc_validity}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="grid gap-2">
-                        <Label htmlFor="remarks">Remarks</Label>
-                        <Input
-                            id="remarks"
-                            name="remarks"
-                            placeholder="Remarks"
-                            value={data.remarks}
-                            onChange={handleChange}
-                        />
-                        {errors.remarks && (
-                            <p className="text-sm text-red-500">
-                                {errors.remarks}
-                            </p>
-                        )}
-                    </div>
-
-                    <DialogFooter>
-                        <DialogClose asChild>
-                            <Button type="button" variant="outline">
-                                Cancel
-                            </Button>
-                        </DialogClose>
-                        {updateData ? (
-                            <Button
-                                type="submit"
-                                disabled={processing}
-                                variant="secondary"
+                        <div className="space-y-2">
+                            <Label
+                                htmlFor="remarks"
+                                className="text-sm font-medium"
                             >
-                                {processing ? "Updating..." : "Update"}
-                            </Button>
-                        ) : (
-                            <Button type="submit" disabled={processing}>
-                                {processing ? "Creating..." : "Create"}
-                            </Button>
-                        )}
+                                Remarks
+                            </Label>
+                            <Input
+                                id="remarks"
+                                name="remarks"
+                                placeholder="Additional notes or remarks"
+                                value={data.remarks}
+                                onChange={handleChange}
+                            />
+                        </div>
+                    </div>
+
+                    <DialogFooter className="flex flex-col-reverse sm:flex-row gap-3">
+                        <div className="flex gap-2">
+                            <DialogClose asChild>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    disabled={processing}
+                                >
+                                    Cancel
+                                </Button>
+                            </DialogClose>
+                        </div>
+                        <Button
+                            type="submit"
+                            disabled={processing}
+                            className="min-w-24"
+                        >
+                            {processing ? (
+                                <>
+                                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                    {updateData ? "Updating..." : "Creating..."}
+                                </>
+                            ) : updateData ? (
+                                "Update Customer"
+                            ) : (
+                                "Create Customer"
+                            )}
+                        </Button>
                     </DialogFooter>
                 </form>
             </DialogContent>
