@@ -38,10 +38,9 @@ function Items() {
     };
 
     const productTypeVariants = {
-        prescription: "default",
-        over_the_counter: "secondary",
-        medical_supply: "outline",
-        equipment: "destructive",
+        exclusive: "default",
+        "non-exclusive": "secondary",
+        regulated: "destructive",
     };
     return (
         <AuthenticatedLayout>

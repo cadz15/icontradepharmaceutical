@@ -16,7 +16,7 @@ function AppPagination({ paginationData }) {
     const generateLinks = () => {
         const numberLinks = [];
         const startPage = Math.max(current_page - 2, 1);
-        const endPage = Math.min(current_page + 2, last_page);
+        const endPage = Math.min(current_page + 2, last_page - 2);
 
         for (let i = startPage; i <= endPage; i++) {
             numberLinks.push(i);
@@ -24,6 +24,8 @@ function AppPagination({ paginationData }) {
 
         return numberLinks;
     };
+
+    console.log(generateLinks(), paginationData);
 
     return (
         <Pagination>
@@ -34,10 +36,10 @@ function AppPagination({ paginationData }) {
                 {generateLinks().map((page) => (
                     <PaginationItem key={page}>
                         <PaginationLink
-                            href={links[page].url}
-                            isActive={links[page].active}
+                            href={links[page]?.url}
+                            isActive={links[page]?.active}
                         >
-                            {links[page].label}
+                            {links[page]?.label}
                         </PaginationLink>
                     </PaginationItem>
                 ))}

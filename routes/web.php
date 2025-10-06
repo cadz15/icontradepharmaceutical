@@ -49,8 +49,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/sales-order/{id}', [SalesOrderController::class, 'destroy'])->name('sales.order.delete');
     Route::get('/sales-order/edit/{id}', [SalesOrderController::class, 'show'])->name('sales.order.edit');
 
-    Route::get('/storage/uploads/{id}', [ItemController::class, 'getFile'])->name('image.link');
 });
+Route::get('/storage/uploads/{id}', [ItemController::class, 'getFile'])->name('image.link');
 
 Route::middleware(['auth'])->prefix('admin-api')->name('admin.api.')->group(function() {
     Route::get('/medical-list', [MedicalRepresentativeController::class, 'list'])->name('med.rep.list');
