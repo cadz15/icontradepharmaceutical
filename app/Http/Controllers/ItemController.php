@@ -125,7 +125,7 @@ class ItemController extends Controller
             'supply' => ['sometimes'],
             'catalog_price' => ['required'],
             'product_type' => ['required'],
-            'images' => ['required', 'array'],
+            'images' => ['sometimes', 'array'],
             'images.*' => ['image']
         ]);
 

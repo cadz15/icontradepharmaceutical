@@ -31,15 +31,20 @@ import {
     Clock,
     CheckCircle2,
     Loader2,
+    CircleX,
 } from "lucide-react";
 
 const statusConfig = {
     pending: { label: "Pending", color: "bg-yellow-500", icon: Clock },
-    packed: { label: "Packed", color: "bg-blue-500", icon: Package2 },
-    delivered: {
-        label: "Delivered",
-        color: "bg-green-500",
-        icon: CheckCircle2,
+    "acknowledge-approved": {
+        label: "Acknowledge-Approved",
+        color: "bg-blue-500",
+        icon: Package2,
+    },
+    "acknowledge-hold": {
+        label: "Acknowledge-Hold",
+        color: "bg-red-500",
+        icon: CircleX,
     },
 };
 
@@ -276,16 +281,16 @@ function SalesOrderView() {
                                                     Pending
                                                 </div>
                                             </SelectItem>
-                                            <SelectItem value="packed">
+                                            <SelectItem value="acknowledge-approved">
                                                 <div className="flex items-center gap-2">
                                                     <Package2 className="h-4 w-4" />
-                                                    Packed
+                                                    Acknowledge-Approved
                                                 </div>
                                             </SelectItem>
-                                            <SelectItem value="delivered">
+                                            <SelectItem value="acknowledge-hold">
                                                 <div className="flex items-center gap-2">
                                                     <CheckCircle2 className="h-4 w-4" />
-                                                    Delivered
+                                                    Acknowledge-Hold
                                                 </div>
                                             </SelectItem>
                                         </SelectContent>

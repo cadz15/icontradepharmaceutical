@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class CustomerController extends Controller
@@ -14,8 +15,22 @@ class CustomerController extends Controller
     public function index()
     {
         $customers = Customer::latest()->paginate(15);
+        $total = Customer::query()
+        // Count the non-null s3_license without affecting other counts
+        ->selectRaw('COUNT(DISTINCT CASE WHEN s3_license IS NOT NULL THEN id END) as total_s3_license')
+        
+        // Count the non-null pharmacist_name without affecting other counts
+        ->addSelect(DB::raw('COUNT(DISTINCT CASE WHEN pharmacist_name IS NOT NULL THEN id END) as total_pharmacists'))
+
+        // Get unique regions count
+        ->addSelect(DB::raw('COUNT(DISTINCT region) as unique_regions_count'))
+        
+        // Execute the query
+        ->first();
+
         return Inertia::render('Admin/Customers', [
-            'customers' => $customers
+            'customers' => $customers,
+            'analytics' => $total
         ]);
     }
 

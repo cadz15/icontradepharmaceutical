@@ -34,7 +34,7 @@ import DeleteDialog from "@/components/Modal/Admin/DeleteDialog";
 import AuthenticatedLayout from "@/layouts/AuthenticatedLayout";
 
 export default function Customers() {
-    const { customers } = usePage().props;
+    const { customers, analytics } = usePage().props;
     const [updateData, setUpdateData] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -120,7 +120,9 @@ export default function Customers() {
             </Badge>
         ) : (
             <Badge variant="outline" className="text-red-500 border-red-200">
-                Not Accredited
+                {customer.s3_validity
+                    ? `Expired: ${formatS3Date(customer.s3_validity)}`
+                    : "Not Accredited "}
             </Badge>
         );
     };
@@ -201,9 +203,7 @@ export default function Customers() {
                                     S3 Accredited
                                 </p>
                                 <p className="text-2xl font-bold">
-                                    {customers.data?.filter((c) =>
-                                        handleS3Validity(c.s3_validity)
-                                    ).length || 0}
+                                    {analytics?.total_s3_license || 0}
                                 </p>
                             </div>
                         </CardContent>
@@ -219,9 +219,7 @@ export default function Customers() {
                                     With Pharmacist
                                 </p>
                                 <p className="text-2xl font-bold">
-                                    {customers.data?.filter(
-                                        (c) => c.pharmacist_name
-                                    ).length || 0}
+                                    {analytics?.total_pharmacists || 0}
                                 </p>
                             </div>
                         </CardContent>
@@ -237,9 +235,7 @@ export default function Customers() {
                                     Regions
                                 </p>
                                 <p className="text-2xl font-bold">
-                                    {new Set(
-                                        customers.data?.map((c) => c.region)
-                                    ).size || 0}
+                                    {analytics?.unique_regions_count || 0}
                                 </p>
                             </div>
                         </CardContent>
@@ -255,8 +251,8 @@ export default function Customers() {
                                 Doctor / Hospital List
                             </CardTitle>
                             <div className="text-sm text-muted-foreground">
-                                Showing {customers.from} to {customers.to} of{" "}
-                                {customers.total} entries
+                                Showing {customers?.from} to {customers?.to} of{" "}
+                                {customers?.total} entries
                             </div>
                         </div>
                     </CardHeader>
