@@ -123,7 +123,7 @@ class MobileSalesOrderController extends Controller
     public function analytics(AnalyticsServices $analytics)
     {
         return response()->json([
-            'analytics' => $analytics->medRepDashboard()
+            'analytics' => json_encode($analytics->medRepDashboard())
         ]);
     }
 }
