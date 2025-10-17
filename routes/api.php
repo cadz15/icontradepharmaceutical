@@ -18,6 +18,9 @@ Route::middleware(['auth.apikey', 'throttle:api-key'])->group(function() {
     Route::get('/items', [MobileItemController::class, 'index']);
 
 
+    Route::get('/dashboard-analytics', [MobileSalesOrderController::class, 'analytics']);
+
+
     Route::get('/ping', [MobileMedicalRepresentativeController::class, 'ping']);
 });
 

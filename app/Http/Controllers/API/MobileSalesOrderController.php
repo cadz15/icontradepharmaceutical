@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\SalesOrder as ResourcesSalesOrder;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderItem;
+use App\Services\AnalyticsServices;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -116,5 +117,13 @@ class MobileSalesOrderController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+
+    public function analytics(AnalyticsServices $analytics)
+    {
+        return response()->json([
+            'analytics' => $analytics->medRepDashboard()
+        ]);
     }
 }
