@@ -10,6 +10,7 @@ use App\Services\AnalyticsServices;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 
 class MobileSalesOrderController extends Controller
 {
@@ -40,6 +41,7 @@ class MobileSalesOrderController extends Controller
             'items.*.id'=>  ['required'],
             'items.*.salesOrderId'=>  ['required'],
             'items.*.itemId'=>  ['required'],
+            'items.*.onlineId'=>  ['sometimes'],
             'items.*.quantity'=>  ['required'],
             'items.*.promo'=>  ['required'],
             'items.*.discount'=>  ['sometimes'],
@@ -49,6 +51,9 @@ class MobileSalesOrderController extends Controller
             'items.*.total'=>  ['required'],
         ]);
 
+
+        Log::info("Sales order request:", $validated);
+        
         $salesItemsIds = [];
 
         try{
@@ -66,7 +71,7 @@ class MobileSalesOrderController extends Controller
             foreach ($validated['items'] as $item) {
                 $salesItem = SalesOrderItem::create([
                     'sales_order_id' => $salesOrder->id,
-                    'item_id' => $item['itemId'],
+                    'item_id' => $item['onlineId'],
                     'quantity' => $item['quantity'],
                     'promo' => $item['promo'],
                     'discount' => $item['discount'],

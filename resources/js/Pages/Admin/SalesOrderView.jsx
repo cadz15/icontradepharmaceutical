@@ -150,7 +150,7 @@ function SalesOrderView() {
     const StatusIcon = currentStatusConfig.icon;
 
     return (
-        <AuthenticatedLayout header="Sales Order">
+        <AuthenticatedLayout>
             <Head title={`Sales Order #${salesOrder.sales_order_number}`} />
 
             <div className="container max-w-7xl mx-auto py-6 space-y-6">

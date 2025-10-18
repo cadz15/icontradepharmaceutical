@@ -91,6 +91,7 @@ class SalesOrderController extends Controller
             'saleItems.item' // nested item through saleItems
         ])->find($id);
 
+
         return Inertia::render('Admin/SalesOrderView', [
             'salesOrder' => $salesOrder
         ]);
