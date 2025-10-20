@@ -14,6 +14,7 @@ Route::middleware(['auth.apikey', 'throttle:api-key'])->group(function() {
 
     Route::get('/customers', [MobileCustomerController::class, 'index'])->name('api.customer.list');
     Route::post('/customer', [MobileCustomerController::class, 'store']);
+    Route::post('/dcr', [MobileCustomerController::class, 'addDcr']);
     
     Route::get('/items', [MobileItemController::class, 'index']);
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Customer as ResourcesCustomer;
 use App\Models\Customer;
+use App\Models\Dcr;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -93,5 +94,43 @@ class MobileCustomerController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+
+    public function addDcr(Request $request) {
+        $validated = $request->validate([
+            'name'=> ['required'],
+            'customerOnlineId' => ['required'],
+            'customerId' => ['required'],
+            'dcrDate' => ['sometimes'],
+            'practice' => ['required'],
+            'signature' => ['sometimes'],
+            'remarks'=> ['sometimes'],
+            'syncDate'=> ['sometimes'],
+        ]);
+
+        $dcr = null;
+
+        try {
+            $dcr = Dcr::create([
+                'name' => $validated['name'],
+                'customer_id' => $validated['customerOnlineId'],
+                'dcr_date' => $validated['dcrDate'],
+                'pract-ce' => $validated['practice'],
+                'signature' => $request->get('signature'),
+                'remarks' => $request->get('remarks'),
+                'sync_date' => now()->format('M/d/Y')
+            ]);
+
+        } catch (\Throwable $th) {
+             return response()->json([
+                'message' => 'Unable to create dcr!',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return response()->json([
+            'message' => 'DCR Successfully created!',
+            'id' => $dcr ? $dcr->id : null,
+        ], Response::HTTP_OK);
     }
 }

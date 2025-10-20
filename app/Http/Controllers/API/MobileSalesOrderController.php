@@ -41,7 +41,7 @@ class MobileSalesOrderController extends Controller
             'items.*.id'=>  ['required'],
             'items.*.salesOrderId'=>  ['required'],
             'items.*.itemId'=>  ['required'],
-            'items.*.onlineId'=>  ['sometimes'],
+            'items.*.itemOnlineId'=>  ['sometimes'],
             'items.*.quantity'=>  ['required'],
             'items.*.promo'=>  ['required'],
             'items.*.discount'=>  ['sometimes'],
@@ -71,7 +71,7 @@ class MobileSalesOrderController extends Controller
             foreach ($validated['items'] as $item) {
                 $salesItem = SalesOrderItem::create([
                     'sales_order_id' => $salesOrder->id,
-                    'item_id' => $item['onlineId'],
+                    'item_id' => $item['itemOnlineId'],
                     'quantity' => $item['quantity'],
                     'promo' => $item['promo'],
                     'discount' => $item['discount'],
