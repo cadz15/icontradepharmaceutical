@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('catalog_price');
             $table->string('product_type');
             $table->integer('inventory');
+            $table->longText('remarks')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

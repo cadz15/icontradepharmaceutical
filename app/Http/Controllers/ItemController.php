@@ -54,7 +54,8 @@ class ItemController extends Controller
             'supply' =>$request->get('supply'),
             'catalog_price' => $validated['catalog_price'],
             'product_type' => $validated['product_type'],
-            'inventory' => 0
+            'inventory' => 0,
+            'remarks' => $request->get('remarks'),
         ]);
 
         foreach ($request->file('images') as $image) {
@@ -140,20 +141,25 @@ class ItemController extends Controller
             'supply' =>$request->get('supply'),
             'catalog_price' => $validated['catalog_price'],
             'product_type' => $validated['product_type'],
-            'inventory' => 0
+            'inventory' => 0,
+            'remarks' => $request->get('remarks'),
         ]);
 
-        foreach ($request->file('images') as $image) {
-            $fileName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-            $folderName = "item". $item->id;
-            $path = $image->storeAs($folderName, $fileName, 'public');
-            $urls[] = Storage::url($path);
+        if($request->file('images')) {
 
-            ItemImage::create([
-                'item_id' => $item->id,
-                'link' => $path
-            ]);
+            foreach ($request->file('images') as $image) {
+                $fileName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $folderName = "item". $item->id;
+                $path = $image->storeAs($folderName, $fileName, 'public');
+                $urls[] = Storage::url($path);
+    
+                ItemImage::create([
+                    'item_id' => $item->id,
+                    'link' => $path
+                ]);
+            }
         }
+
 
 
         $items = Item::with('images')->oldest('brand_name')->paginate(15);

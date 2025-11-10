@@ -44,6 +44,7 @@ import AuthenticatedLayout from "@/layouts/AuthenticatedLayout";
 import { Head } from "@inertiajs/react";
 import axios from "axios";
 import { toast } from "sonner";
+import { TagsInput } from "@/Components/TagsInput";
 
 export default function ItemEdit() {
     const { item, images } = usePage().props;
@@ -56,6 +57,7 @@ export default function ItemEdit() {
             catalog_price: "",
             product_type: "",
             images: [],
+            remarks: "",
         });
 
     const [previews, setPreviews] = useState([]);
@@ -63,6 +65,7 @@ export default function ItemEdit() {
     const [isDeleting, setIsDeleting] = useState(null);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [imageToDelete, setImageToDelete] = useState(null);
+    const [selectedTags, setSelectedTags] = useState([]);
 
     const onDrop = useCallback((acceptedFiles) => {
         const newPreviews = acceptedFiles.map((file) =>
@@ -165,6 +168,7 @@ export default function ItemEdit() {
             catalog_price: item.catalog_price,
             product_type: item.product_type,
             images: [],
+            remarks: item.remarks,
         });
         setPreviews([]);
         toast.info("Form reset to original values");
@@ -180,9 +184,15 @@ export default function ItemEdit() {
             catalog_price: item.catalog_price,
             product_type: item.product_type,
             images: [],
+            remarks: item.remarks,
         });
+        setSelectedTags(item.remarks?.split(","));
         setUploadedImages(images);
     }, [item, images, setData]);
+
+    useEffect(() => {
+        setData("remarks", selectedTags?.join(","));
+    }, [selectedTags]);
 
     const hasErrors = Object.keys(errors).length > 0;
 
@@ -395,6 +405,22 @@ export default function ItemEdit() {
                                                 {errors.product_type}
                                             </p>
                                         )}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label
+                                            htmlFor="product_type"
+                                            className="text-sm font-medium"
+                                        >
+                                            Product Ingredients
+                                        </Label>
+                                        <TagsInput
+                                            availableTags={[
+                                                "Vitamins C",
+                                                "Zinc",
+                                            ]}
+                                            value={selectedTags}
+                                            onChange={setSelectedTags}
+                                        />
                                     </div>
                                 </div>
 

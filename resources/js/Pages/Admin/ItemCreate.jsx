@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "@inertiajs/react";
 import { useDropzone } from "react-dropzone";
 import {
@@ -25,6 +25,7 @@ import { AlertCircle, Upload, Package, Image as ImageIcon } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import AuthenticatedLayout from "@/layouts/AuthenticatedLayout";
 import { Head } from "@inertiajs/react";
+import { TagsInput } from "@/Components/TagsInput";
 
 export default function ItemCreate() {
     const { data, setData, post, progress, processing, errors, reset } =
@@ -36,9 +37,11 @@ export default function ItemCreate() {
             catalog_price: "",
             product_type: "",
             images: [],
+            remarks: "",
         });
 
     const [previews, setPreviews] = useState([]);
+    const [selectedTags, setSelectedTags] = useState([]);
 
     const onDrop = useCallback(
         (acceptedFiles) => {
@@ -98,6 +101,10 @@ export default function ItemCreate() {
         const formattedValue = e.target.value;
         setData("catalog_price", formattedValue);
     };
+
+    useEffect(() => {
+        setData("remarks", selectedTags.join(","));
+    }, [selectedTags]);
 
     return (
         <AuthenticatedLayout>
@@ -297,6 +304,19 @@ export default function ItemCreate() {
                                             {errors.product_type}
                                         </p>
                                     )}
+                                </div>
+                                <div className="space-y-2">
+                                    <Label
+                                        htmlFor="product_type"
+                                        className="text-sm font-medium"
+                                    >
+                                        Product Ingredients
+                                    </Label>
+                                    <TagsInput
+                                        availableTags={["Vitamins C", "Zinc"]}
+                                        value={selectedTags}
+                                        onChange={setSelectedTags}
+                                    />
                                 </div>
                             </div>
 

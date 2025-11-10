@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Head, router, usePage } from "@inertiajs/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -32,6 +32,14 @@ import AppPagination from "@/components/AppPagination";
 import CreateCustomer from "@/components/Modal/Admin/CreateCustomer";
 import DeleteDialog from "@/components/Modal/Admin/DeleteDialog";
 import AuthenticatedLayout from "@/layouts/AuthenticatedLayout";
+import { Input } from "@/Components/ui/input";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/Components/ui/select";
 
 export default function Customers() {
     const { customers, analytics } = usePage().props;
@@ -39,22 +47,26 @@ export default function Customers() {
     const [showModal, setShowModal] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
 
-    const fetchCustomers = async () => {
+    const [filters, setFilters] = useState({
+        search: "",
+        address: "",
+        practice: "",
+        s3: "",
+        hasPharmacist: "",
+    });
+
+    const fetchCustomers = async (params = {}) => {
         setIsRefreshing(true);
         try {
-            await router.get(
-                route("customer.index"),
-                {},
-                {
-                    onSuccess: () => {
-                        setIsRefreshing(false);
-                    },
-                    onError: (error) => {
-                        console.error("Error fetching customers:", error);
-                        setIsRefreshing(false);
-                    },
-                }
-            );
+            await router.get(route("customer.index"), params, {
+                onSuccess: () => {
+                    setIsRefreshing(false);
+                },
+                onError: (error) => {
+                    console.error("Error fetching customers:", error);
+                    setIsRefreshing(false);
+                },
+            });
         } catch (error) {
             console.error("Error fetching customers:", error);
             setIsRefreshing(false);
@@ -125,6 +137,18 @@ export default function Customers() {
                     : "Not Accredited "}
             </Badge>
         );
+    };
+
+    // 🔍 Trigger search/filter on change
+    // useEffect(() => {
+    //     const timeout = setTimeout(() => {
+    //         fetchCustomers(filters);
+    //     }, 400);
+    //     return () => clearTimeout(timeout);
+    // }, [filters]);
+
+    const handleFilterChange = (key, value) => {
+        setFilters((prev) => ({ ...prev, [key]: value }));
     };
 
     return (
@@ -241,6 +265,87 @@ export default function Customers() {
                         </CardContent>
                     </Card>
                 </div>
+
+                {/* 🔍 Filters Section */}
+                <Card>
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-lg">
+                            Search & Filters
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                        {/* Search */}
+                        <div>
+                            <Input
+                                placeholder="Search by name..."
+                                value={filters.search}
+                                onChange={(e) =>
+                                    handleFilterChange("search", e.target.value)
+                                }
+                            />
+                        </div>
+
+                        {/* Address */}
+                        <div>
+                            <Input
+                                placeholder="Filter by address..."
+                                value={filters.address}
+                                onChange={(e) =>
+                                    handleFilterChange(
+                                        "address",
+                                        e.target.value
+                                    )
+                                }
+                            />
+                        </div>
+
+                        {/* Practice */}
+                        <div>
+                            <Input
+                                placeholder="Filter by practice..."
+                                value={filters.practice}
+                                onChange={(e) =>
+                                    handleFilterChange(
+                                        "practice",
+                                        e.target.value
+                                    )
+                                }
+                            />
+                        </div>
+
+                        {/* S3 Accredited */}
+                        <Select
+                            value={filters.s3}
+                            onValueChange={(v) => handleFilterChange("s3", v)}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="S3 Accredited" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value=" ">All</SelectItem>
+                                <SelectItem value="yes">Yes</SelectItem>
+                                <SelectItem value="no">No</SelectItem>
+                            </SelectContent>
+                        </Select>
+
+                        {/* Has Pharmacist */}
+                        <Select
+                            value={filters.hasPharmacist}
+                            onValueChange={(v) =>
+                                handleFilterChange("hasPharmacist", v)
+                            }
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="Has Pharmacist" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value=" ">All</SelectItem>
+                                <SelectItem value="yes">Yes</SelectItem>
+                                <SelectItem value="no">No</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </CardContent>
+                </Card>
 
                 {/* Customers Table */}
                 <Card>

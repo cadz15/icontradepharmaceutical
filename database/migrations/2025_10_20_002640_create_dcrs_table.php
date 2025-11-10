@@ -17,7 +17,7 @@ return new class extends Migration
             $table->bigInteger('customer_id');
             $table->string('dcr_date');
             $table->text('signature')->nullable();
-            $table->string('remarks')->nullable();
+            $table->longText('remarks')->nullable();
             $table->string('sync_date')->nullable();
 
             $table->timestamps();
