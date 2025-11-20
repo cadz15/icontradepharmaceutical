@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Head, router, usePage } from "@inertiajs/react";
+import { Head, Link, router, usePage } from "@inertiajs/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
     Table,
@@ -42,17 +42,22 @@ import {
 } from "@/Components/ui/select";
 
 export default function Customers() {
-    const { customers, analytics } = usePage().props;
+    const {
+        customers,
+        analytics,
+        filters: initialFilters = {},
+    } = usePage().props;
     const [updateData, setUpdateData] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const [firstStart, setFirstStart] = useState(true);
 
     const [filters, setFilters] = useState({
-        search: "",
-        address: "",
-        practice: "",
-        s3: "",
-        hasPharmacist: "",
+        search: initialFilters.search,
+        address: initialFilters.address,
+        practice: initialFilters.practice,
+        s3: initialFilters.s3,
+        hasPharmacist: initialFilters.hasPharmacist,
     });
 
     const fetchCustomers = async (params = {}) => {
@@ -140,12 +145,16 @@ export default function Customers() {
     };
 
     // 🔍 Trigger search/filter on change
-    // useEffect(() => {
-    //     const timeout = setTimeout(() => {
-    //         fetchCustomers(filters);
-    //     }, 400);
-    //     return () => clearTimeout(timeout);
-    // }, [filters]);
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            if (!firstStart) {
+                fetchCustomers(filters);
+            } else {
+                setFirstStart(false);
+            }
+        }, 400);
+        return () => clearTimeout(timeout);
+    }, [filters]);
 
     const handleFilterChange = (key, value) => {
         setFilters((prev) => ({ ...prev, [key]: value }));
@@ -322,7 +331,7 @@ export default function Customers() {
                                 <SelectValue placeholder="S3 Accredited" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value=" ">All</SelectItem>
+                                <SelectItem value="all">All S3</SelectItem>
                                 <SelectItem value="yes">Yes</SelectItem>
                                 <SelectItem value="no">No</SelectItem>
                             </SelectContent>
@@ -339,7 +348,9 @@ export default function Customers() {
                                 <SelectValue placeholder="Has Pharmacist" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value=" ">All</SelectItem>
+                                <SelectItem value="all">
+                                    All Pharmacist
+                                </SelectItem>
                                 <SelectItem value="yes">Yes</SelectItem>
                                 <SelectItem value="no">No</SelectItem>
                             </SelectContent>
@@ -487,7 +498,14 @@ export default function Customers() {
                                                                     size="icon"
                                                                     className="h-8 w-8 text-muted-foreground hover:text-blue-600 hover:bg-blue-50"
                                                                 >
-                                                                    <Eye className="h-4 w-4" />
+                                                                    <Link
+                                                                        href={route(
+                                                                            "customer.show",
+                                                                            customer.id
+                                                                        )}
+                                                                    >
+                                                                        <Eye className="h-4 w-4" />
+                                                                    </Link>
                                                                 </Button>
                                                             </TooltipTrigger>
                                                             <TooltipContent>

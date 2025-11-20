@@ -39,7 +39,7 @@ const statusConfig = {
     "acknowledge-approved": {
         label: "Acknowledge-Approved",
         color: "bg-blue-500",
-        icon: Package2,
+        icon: CheckCircle2,
     },
     "acknowledge-hold": {
         label: "Acknowledge-Hold",
@@ -283,13 +283,13 @@ function SalesOrderView() {
                                             </SelectItem>
                                             <SelectItem value="acknowledge-approved">
                                                 <div className="flex items-center gap-2">
-                                                    <Package2 className="h-4 w-4" />
+                                                    <CheckCircle2 className="h-4 w-4" />
                                                     Acknowledge-Approved
                                                 </div>
                                             </SelectItem>
                                             <SelectItem value="acknowledge-hold">
                                                 <div className="flex items-center gap-2">
-                                                    <CheckCircle2 className="h-4 w-4" />
+                                                    <CircleX className="h-4 w-4" />
                                                     Acknowledge-Hold
                                                 </div>
                                             </SelectItem>

@@ -16,28 +16,65 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Eye, Edit, Trash2, FileText, Plus } from "lucide-react";
+import {
+    Eye,
+    Edit,
+    Trash2,
+    FileText,
+    Plus,
+    Search,
+    Filter,
+    X,
+} from "lucide-react";
 import AppPagination from "@/components/AppPagination";
 import DeleteDialog from "@/components/Modal/Admin/DeleteDialog";
 import AuthenticatedLayout from "@/layouts/AuthenticatedLayout";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
+import { useState, useEffect } from "react";
+import { Input } from "@/components/ui/input";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
 const statusVariant = {
     pending: "outline",
-    completed: "default",
-    cancelled: "destructive",
+    "acknowledge-approved": "default",
+    "acknowledge-hold": "destructive",
     processing: "secondary",
 };
 
 const statusColors = {
     pending: "bg-yellow-500 hover:bg-yellow-600",
-    completed: "bg-green-500 hover:bg-green-600",
-    cancelled: "bg-red-500 hover:bg-red-600",
+    "acknowledge-approved": "bg-green-500 hover:bg-green-600",
+    "acknowledge-hold": "bg-red-500 hover:bg-red-600",
     processing: "bg-blue-500 hover:bg-blue-600",
 };
 
 function SalesOrder() {
-    const { sales } = usePage().props;
+    const { sales, medRepData, filters: initialFilters = {} } = usePage().props;
+    const [searchTerm, setSearchTerm] = useState(initialFilters.search || "");
+    const [medRepFilter, setMedRepFilter] = useState(
+        initialFilters.med_rep || "all"
+    );
+    const [statusFilter, setStatusFilter] = useState(
+        initialFilters.status || "all"
+    );
+    const [priceSort, setPriceSort] = useState(
+        initialFilters.price_sort || "all"
+    );
+
+    // Get unique medical representatives for filter
+    const medicalReps = [
+        ...new Set(
+            sales?.data
+                ?.map((sale) => sale.medical_representative?.name)
+                .filter(Boolean)
+        ),
+    ];
 
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat("en-PH", {
@@ -53,6 +90,50 @@ function SalesOrder() {
             day: "numeric",
         });
     };
+
+    // Debounced search
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            applyFilters();
+        }, 500);
+
+        return () => clearTimeout(timeoutId);
+    }, [searchTerm, medRepFilter, statusFilter, priceSort]);
+
+    const applyFilters = () => {
+        const filters = {};
+
+        if (searchTerm) filters.search = searchTerm;
+        if (medRepFilter) filters.med_rep = medRepFilter;
+        if (statusFilter) filters.status = statusFilter;
+        if (priceSort) filters.price_sort = priceSort;
+
+        router.get(route("sales.order.index"), filters, {
+            preserveState: true,
+            replace: true,
+        });
+    };
+
+    const clearFilters = () => {
+        setSearchTerm("");
+        setMedRepFilter("all");
+        setStatusFilter("all");
+        setPriceSort("all");
+        router.get(
+            route("sales.order.index"),
+            {},
+            {
+                preserveState: true,
+                replace: true,
+            }
+        );
+    };
+
+    const hasActiveFilters =
+        searchTerm ||
+        medRepFilter !== "all" ||
+        statusFilter !== "all" ||
+        priceSort !== "all";
 
     return (
         <AuthenticatedLayout>
@@ -78,12 +159,133 @@ function SalesOrder() {
                     </Button> */}
                 </div>
 
+                {/* Search and Filters Section */}
+                <Card>
+                    <CardHeader className="pb-3">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                            <Filter className="h-5 w-5" />
+                            Filters & Search
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                            {/* Search Input */}
+                            <div className="lg:col-span-2">
+                                <div className="relative">
+                                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                    <Input
+                                        placeholder="Search by customer, customer address..."
+                                        value={searchTerm}
+                                        onChange={(e) =>
+                                            setSearchTerm(e.target.value)
+                                        }
+                                        className="pl-9"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Medical Representative Filter */}
+                            <Select
+                                value={medRepFilter}
+                                onValueChange={setMedRepFilter}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="All Med Reps" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">
+                                        All Med Reps
+                                    </SelectItem>
+                                    {medRepData.map((rep) => (
+                                        <SelectItem
+                                            key={rep?.id}
+                                            value={rep.id}
+                                        >
+                                            {rep.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+
+                            {/* Status Filter */}
+                            <Select
+                                value={statusFilter}
+                                onValueChange={setStatusFilter}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="All Status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">
+                                        All Status
+                                    </SelectItem>
+                                    <SelectItem value="pending">
+                                        Pending
+                                    </SelectItem>
+                                    {/* <SelectItem value="processing">
+                                        Processing
+                                    </SelectItem> */}
+                                    <SelectItem value="acknowledge-approved">
+                                        Acknowledge Approved
+                                    </SelectItem>
+                                    <SelectItem value="acknowledge-hold">
+                                        Acknowledge Hold
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+
+                            {/* Price Sort */}
+                            <Select
+                                value={priceSort}
+                                onValueChange={setPriceSort}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Price Sort" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Default</SelectItem>
+                                    <SelectItem value="high">
+                                        Price: High to Low
+                                    </SelectItem>
+                                    <SelectItem value="low">
+                                        Price: Low to High
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Active Filters Indicator */}
+                        {hasActiveFilters && (
+                            <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    <Filter className="h-4 w-4" />
+                                    <span>Active filters applied</span>
+                                </div>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={clearFilters}
+                                    className="gap-2"
+                                >
+                                    <X className="h-4 w-4" />
+                                    Clear Filters
+                                </Button>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
                 {/* Sales Orders Table */}
                 <Card>
                     <CardHeader className="pb-3">
                         <CardTitle className="text-xl flex items-center gap-2">
                             <FileText className="h-5 w-5" />
                             Sales Order List
+                            {hasActiveFilters && (
+                                <Badge variant="secondary" className="ml-2">
+                                    Filtered
+                                </Badge>
+                            )}
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
@@ -298,11 +500,23 @@ function SalesOrder() {
                                                             found
                                                         </p>
                                                         <p className="text-sm">
-                                                            Create your first
-                                                            sales order to get
-                                                            started
+                                                            {hasActiveFilters
+                                                                ? "Try adjusting your filters to see more results"
+                                                                : "Create your first sales order to get started"}
                                                         </p>
                                                     </div>
+                                                    {hasActiveFilters && (
+                                                        <Button
+                                                            variant="outline"
+                                                            onClick={
+                                                                clearFilters
+                                                            }
+                                                            className="gap-2 mt-2"
+                                                        >
+                                                            <X className="h-4 w-4" />
+                                                            Clear Filters
+                                                        </Button>
+                                                    )}
                                                     {/* <Button
                                                         className="gap-2 mt-2"
                                                         asChild

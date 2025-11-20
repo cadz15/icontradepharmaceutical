@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use App\Services\CustomerAnalyticsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -12,9 +13,40 @@ class CustomerController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $customers = Customer::latest()->paginate(15);
+        $search = $request->get('search');
+        $address = $request->get('address');
+        $practice = $request->get('practice');
+        $hasPharmacist = $request->get('hasPharmacist');
+        $s3 = $request->get('s3');
+
+        $customers = Customer::when($search != "", function($query) use($search) {
+            $query->where('name', 'like', "%$search%");
+        })
+        ->when($address != "", function($query) use($address) {
+            $query->where('full_address', 'like', "%$address%");
+        })
+        ->when($practice != "", function($query) use($practice) {
+            $query->where('practice', 'like', "%$practice%");
+        })
+        ->when($hasPharmacist != "all", function($query) use($hasPharmacist) {
+            if($hasPharmacist == "yes") {
+                $query->whereNotNull('pharmacist_name');
+            }else {
+                $query->whereNull('pharmacist_name')->orWhere('pharmacist_name', "");
+            }
+        })
+        ->when($s3 != "", function($query) use($s3) {
+            if($s3 == "yes") {
+                $query->whereNotNull('s3_license');
+            }else {
+                $query->whereNull('s3_license')->orWhere('s3_license', "");
+            }
+        })
+        ->latest()->paginate(15);
+
+
         $total = Customer::query()
         // Count the non-null s3_license without affecting other counts
         ->selectRaw('COUNT(DISTINCT CASE WHEN s3_license IS NOT NULL THEN id END) as total_s3_license')
@@ -30,7 +62,8 @@ class CustomerController extends Controller
 
         return Inertia::render('Admin/Customers', [
             'customers' => $customers,
-            'analytics' => $total
+            'analytics' => $total,
+            'filters' => $request->all()
         ]);
     }
 
@@ -78,9 +111,21 @@ class CustomerController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Customer $customer)
+    public function show(Customer $customer, Request $request)
     {
-        //
+        $analyticsService = new CustomerAnalyticsService($customer);
+        $period = $request->get('period', 30); // Default to 30 days        
+        $year = $request->get('year', date('Y'));
+
+        $analytics = $analyticsService->getCustomerAnalytics($period, $year);
+        
+        return Inertia::render('Admin/CustomerView', [
+            'customer' => $customer,
+            'analytics' => $analytics,
+            'filters' => [
+                'period' => $period,
+            ],
+        ]);
     }
 
     /**
@@ -121,6 +166,23 @@ class CustomerController extends Controller
                 'remarks' => $request->get('remarks'),
                 'sync_date' => null,
             ]);
+
+            if($request->has('fromView')) {
+                $analyticsService = new CustomerAnalyticsService($customer);
+                $period = $request->get('period', 30); // Default to 30 days        
+                $year = $request->get('year', date('Y'));
+
+                $analytics = $analyticsService->getCustomerAnalytics($period, $year);
+                
+                return Inertia::render('Admin/CustomerView', [
+                    'message' => 'Customer Successfully updated!',
+                    'customer' => $customer,
+                    'analytics' => $analytics,
+                    'filters' => [
+                        'period' => $period,
+                    ],
+                ]);
+            }
 
             return Inertia::render('Admin/Customers', [
                 'message' => 'Customer Successfully updated!'

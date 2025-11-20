@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\MedicalRepresentativeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SalesOrderController;
+use App\Models\Customer;
 use App\Models\MedicalRepresentative;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -26,10 +28,12 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/medical-representative', [MedicalRepresentativeController::class, 'index'])->name('medical-rep.index');
     Route::post('/medical-representative', [MedicalRepresentativeController::class, 'store'])->name('medical-rep.store');
-    
+    Route::get('/medical-representatives/{medicalRepresentative}', [MedicalRepresentativeController::class, 'show'])->name('medical-representatives.show');
+    Route::put('/medical-representatives/{medicalRepresentative}', [MedicalRepresentativeController::class, 'update'])->name('medical-representatives.update');
 
     Route::get('/customer', [CustomerController::class, 'index'])->name('customer.index');
     Route::post('/customer', [CustomerController::class, 'store'])->name('customer.store');
+    Route::get('/customer/{customer}', [CustomerController::class, 'show'])->name('customer.show');
     Route::put('/customer/{id}', [CustomerController::class, 'update'])->name('customer.update');
     Route::delete('/customer/{id}', [CustomerController::class, 'destroy'])->name('customer.delete');
 
@@ -48,6 +52,10 @@ Route::middleware('auth')->group(function () {
     Route::put('/sales-order/{id}', [SalesOrderController::class, 'update'])->name('sales.order.update');
     Route::delete('/sales-order/{id}', [SalesOrderController::class, 'destroy'])->name('sales.order.delete');
     Route::get('/sales-order/edit/{id}', [SalesOrderController::class, 'show'])->name('sales.order.edit');
+
+    Route::post('/events', [EventController::class, 'store'])->name('events.store');
+    Route::put('/events/{event}', [EventController::class, 'update'])->name('events.update');
+    Route::delete('/events/{event}', [EventController::class, 'destroy'])->name('events.destroy');
 
 });
 Route::get('/storage/uploads/{id}', [ItemController::class, 'getFile'])->name('image.link');

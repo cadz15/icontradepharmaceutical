@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Head, router, usePage } from "@inertiajs/react";
+import { Head, Link, router, usePage } from "@inertiajs/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
     Table,
@@ -157,34 +157,19 @@ export default function MedicalRep() {
                                                                     size="icon"
                                                                     className="h-8 w-8 text-muted-foreground hover:text-blue-600"
                                                                 >
-                                                                    <Eye className="h-4 w-4" />
+                                                                    <Link
+                                                                        href={route(
+                                                                            "medical-representatives.show",
+                                                                            medicalRep.id
+                                                                        )}
+                                                                    >
+                                                                        <Eye className="h-4 w-4" />
+                                                                    </Link>
                                                                 </Button>
                                                             </TooltipTrigger>
                                                             <TooltipContent>
                                                                 <p>
                                                                     View details
-                                                                </p>
-                                                            </TooltipContent>
-                                                        </Tooltip>
-                                                    </TooltipProvider>
-
-                                                    <TooltipProvider>
-                                                        <Tooltip>
-                                                            <TooltipTrigger
-                                                                asChild
-                                                            >
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="icon"
-                                                                    className="h-8 w-8 text-muted-foreground hover:text-orange-600"
-                                                                >
-                                                                    <Edit className="h-4 w-4" />
-                                                                </Button>
-                                                            </TooltipTrigger>
-                                                            <TooltipContent>
-                                                                <p>
-                                                                    Edit
-                                                                    representative
                                                                 </p>
                                                             </TooltipContent>
                                                         </Tooltip>

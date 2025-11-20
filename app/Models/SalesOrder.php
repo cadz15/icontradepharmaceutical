@@ -12,6 +12,11 @@ class SalesOrder extends Model
 
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
 
+    protected $casts = [
+        'date_sold' => 'date',
+    ];
+
+    
     public function customer()
     {
         return $this->hasOne(Customer::class, 'id', 'customer_id');
@@ -23,6 +28,11 @@ class SalesOrder extends Model
     }
 
     public function saleItems()
+    {
+        return $this->hasMany(SalesOrderItem::class, 'sales_order_id', 'id');
+    }
+
+    public function salesOrderItems()
     {
         return $this->hasMany(SalesOrderItem::class, 'sales_order_id', 'id');
     }

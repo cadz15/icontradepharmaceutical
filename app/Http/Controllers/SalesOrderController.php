@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
+use App\Models\MedicalRepresentative;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderItem;
 use Illuminate\Http\Request;
@@ -13,12 +15,44 @@ class SalesOrderController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $sales = SalesOrder::with(['customer', 'medicalRepresentative'])->latest()->paginate(15);
+
+        $medRep = $request->get('med_rep');
+        $priceSort = $request->get('price_sort');
+        $search = $request->get('search');
+        $status = $request->get('status');
+        
+        $medRepData = MedicalRepresentative::all();
+
+        $customerIds = [];
+
+        if($search) {
+            $customerIds = Customer::where('name', 'like', "%$search%")->orWhere('full_address', 'like', "%$search%")->pluck('id')->toArray();
+        }
+
+        $sales = SalesOrder::with(['customer', 'medicalRepresentative'])
+        ->when($medRep != "all", function($query) use($medRep){
+            $query->where('medical_representative_id', $medRep);
+        })
+        ->when($priceSort != "all", function($query) use($priceSort){
+            if($priceSort == 'high') {
+                $query->latest('total');
+            }else {
+                $query->oldest('total');
+            }
+        })
+        ->when($search != "", function($query) use($customerIds){
+            $query->whereIn('customer_id', $customerIds);
+        })
+        ->when($status != "all", function($query) use($status){
+            $query->where('status', $status);
+        })
+        ->latest()->paginate(15);
         
         return Inertia::render('Admin/SalesOrder', [
-            'sales' => $sales
+            'sales' => $sales,
+            'medRepData' => $medRepData
         ]);
     }
 
