@@ -98,6 +98,9 @@ function Items() {
                                         <TableHead className="font-semibold">
                                             Product Type
                                         </TableHead>
+                                        <TableHead className="font-semibold">
+                                            Inventory
+                                        </TableHead>
                                         <TableHead className="font-semibold w-[100px]">
                                             Actions
                                         </TableHead>
@@ -148,6 +151,19 @@ function Items() {
                                                 >
                                                     {item.product_type}
                                                 </Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                                <span
+                                                    className={`${
+                                                        parseInt(
+                                                            item.inventory
+                                                        ) < 10
+                                                            ? "text-red-700"
+                                                            : ""
+                                                    }`}
+                                                >
+                                                    {item.inventory}
+                                                </span>
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-1">

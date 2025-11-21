@@ -38,6 +38,7 @@ export default function ItemCreate() {
             product_type: "",
             images: [],
             remarks: "",
+            inventory: 0,
         });
 
     const [previews, setPreviews] = useState([]);
@@ -100,6 +101,11 @@ export default function ItemCreate() {
     const handlePriceChange = (e) => {
         const formattedValue = e.target.value;
         setData("catalog_price", formattedValue);
+    };
+
+    const handleInventoryChange = (e) => {
+        const formattedValue = e.target.value;
+        setData("inventory", formattedValue);
     };
 
     useEffect(() => {
@@ -198,7 +204,7 @@ export default function ItemCreate() {
                                     </div>
                                 </div>
 
-                                <div className="grid gap-4 md:grid-cols-3">
+                                <div className="grid gap-4 md:grid-cols-2">
                                     <div className="space-y-2">
                                         <Label
                                             htmlFor="milligrams"
@@ -258,6 +264,37 @@ export default function ItemCreate() {
                                             <p className="text-sm text-destructive flex items-center gap-1">
                                                 <AlertCircle className="h-3 w-3" />
                                                 {errors.catalog_price}
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label
+                                            htmlFor="inventory"
+                                            className="text-sm font-medium"
+                                        >
+                                            Inventory{" "}
+                                            <span className="text-destructive">
+                                                *
+                                            </span>
+                                        </Label>
+                                        <Input
+                                            id="inventory"
+                                            name="inventory"
+                                            placeholder="0.00"
+                                            type="number"
+                                            value={data.inventory}
+                                            onChange={handleInventoryChange}
+                                            className={
+                                                errors.inventory
+                                                    ? "border-destructive"
+                                                    : ""
+                                            }
+                                        />
+                                        {errors.inventory && (
+                                            <p className="text-sm text-destructive flex items-center gap-1">
+                                                <AlertCircle className="h-3 w-3" />
+                                                {errors.inventory}
                                             </p>
                                         )}
                                     </div>

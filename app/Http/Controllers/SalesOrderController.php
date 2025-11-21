@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use App\Models\Item;
 use App\Models\MedicalRepresentative;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderItem;
@@ -152,11 +153,32 @@ class SalesOrderController extends Controller
                 'sync_date' => ''
             ]);
 
+            // decrease items inventory if approved
+            if($validated['status'] == 'acknowledge-approved') {
+
+                foreach($salesOrder->saleItems as $saleItem) {
+    
+                    if($saleItem->inventory_decreased) continue; // skip if already decreased
+    
+                    $inventory = Item::find($saleItem->item_id);
+    
+                    if($inventory) {
+                        $inventory->decrement('inventory', (int)$saleItem->quantity);
+                        
+                        $saleItem->update([
+                            'inventory_decreased' => true
+                        ]);
+                    }
+                }
+            }
+
             return Inertia::render('Admin/SalesOrderView', [
                 'message' => 'Sales Order updated!',
                 'salesOrder' => $salesOrder  // Or any other data you want to pass to the page
             ]);
         }
+
+        return abort(404); // show error if sales order is not found
     }
 
     /**

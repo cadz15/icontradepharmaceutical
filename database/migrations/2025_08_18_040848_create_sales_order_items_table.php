@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('free_item_remarks')->nullable();
             $table->string('remarks')->nullable();
             $table->double('total');
+            $table->boolean('inventory_decreased')->default(false);
             $table->timestamps();
             $table->softDeletes();
         });

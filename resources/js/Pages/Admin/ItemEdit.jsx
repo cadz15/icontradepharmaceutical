@@ -58,6 +58,7 @@ export default function ItemEdit() {
             product_type: "",
             images: [],
             remarks: "",
+            inventory: 0,
         });
 
     const [previews, setPreviews] = useState([]);
@@ -126,6 +127,11 @@ export default function ItemEdit() {
         setData("catalog_price", formattedValue);
     };
 
+    const handleInventoryChange = (e) => {
+        const formattedValue = e.target.value;
+        setData("inventory", formattedValue);
+    };
+
     const openDeleteDialog = (image, e) => {
         e.preventDefault(); // Prevent form submission
         e.stopPropagation(); // Stop event bubbling
@@ -169,6 +175,7 @@ export default function ItemEdit() {
             product_type: item.product_type,
             images: [],
             remarks: item.remarks,
+            inventory: parseInt(item.inventory),
         });
         setPreviews([]);
         toast.info("Form reset to original values");
@@ -185,6 +192,7 @@ export default function ItemEdit() {
             product_type: item.product_type,
             images: [],
             remarks: item.remarks,
+            inventory: parseInt(item.inventory),
         });
         setSelectedTags(item.remarks?.split(","));
         setUploadedImages(images);
@@ -299,7 +307,7 @@ export default function ItemEdit() {
                                         </div>
                                     </div>
 
-                                    <div className="grid gap-4 md:grid-cols-3">
+                                    <div className="grid gap-4 md:grid-cols-2">
                                         <div className="space-y-2">
                                             <Label
                                                 htmlFor="milligrams"
@@ -359,6 +367,37 @@ export default function ItemEdit() {
                                                 <p className="text-sm text-destructive flex items-center gap-1">
                                                     <AlertCircle className="h-3 w-3" />
                                                     {errors.catalog_price}
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label
+                                                htmlFor="inventory"
+                                                className="text-sm font-medium"
+                                            >
+                                                Inventory{" "}
+                                                <span className="text-destructive">
+                                                    *
+                                                </span>
+                                            </Label>
+                                            <Input
+                                                id="inventory"
+                                                name="inventory"
+                                                placeholder="0.00"
+                                                type="number"
+                                                value={data.inventory}
+                                                onChange={handleInventoryChange}
+                                                className={
+                                                    errors.inventory
+                                                        ? "border-destructive"
+                                                        : ""
+                                                }
+                                            />
+                                            {errors.inventory && (
+                                                <p className="text-sm text-destructive flex items-center gap-1">
+                                                    <AlertCircle className="h-3 w-3" />
+                                                    {errors.inventory}
                                                 </p>
                                             )}
                                         </div>

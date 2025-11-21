@@ -67,8 +67,8 @@ const items = [
             },
             {
                 title: "Report",
-                url: "#",
-                route: "dashboard",
+                url: route("items.report"),
+                route: "items.report",
             },
         ],
     },

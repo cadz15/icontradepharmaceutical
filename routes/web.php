@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ItemController;
@@ -21,9 +22,7 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [AdminController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/medical-representative', [MedicalRepresentativeController::class, 'index'])->name('medical-rep.index');
@@ -47,6 +46,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/item/edit/{id}', [ItemController::class, 'edit'])->name('item.edit');
     Route::delete('/item/image/{id}', [ItemController::class, 'deleteImage'])->name('item.image.delete');
 
+    Route::get('/items/report', [ItemController::class, 'report'])->name('items.report');
+
     Route::get('/sales-orders', [SalesOrderController::class, 'index'])->name('sales.order.index');
     Route::get('/sales-order/{id}', [SalesOrderController::class, 'show'])->name('sales.order.show');
     Route::put('/sales-order/{id}', [SalesOrderController::class, 'update'])->name('sales.order.update');
@@ -56,6 +57,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/events', [EventController::class, 'store'])->name('events.store');
     Route::put('/events/{event}', [EventController::class, 'update'])->name('events.update');
     Route::delete('/events/{event}', [EventController::class, 'destroy'])->name('events.destroy');
+
+
+    // Admin Event Routes
+    Route::post('/admin/events', [AdminController::class, 'store'])->name('admin.events.store');
+    Route::put('/admin/events/{event}', [AdminController::class, 'update'])->name('admin.events.update');
+    Route::delete('/admin/events/{event}', [AdminController::class, 'destroy'])->name('admin.events.destroy');
+    Route::delete('/admin/events', [AdminController::class, 'destroyMultiple'])->name('admin.events.destroy.multiple');
 
 });
 Route::get('/storage/uploads/{id}', [ItemController::class, 'getFile'])->name('image.link');

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\ItemImages;
 use App\Models\Item;
 use App\Models\ItemImage;
+use App\Services\ItemsAnalyticsService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
@@ -41,6 +42,7 @@ class ItemController extends Controller
             'supply' => ['sometimes'],
             'catalog_price' => ['required'],
             'product_type' => ['required'],
+            'inventory' => ['required'],
             'images' => ['required', 'array'],
             'images.*' => ['image']
         ]);
@@ -54,7 +56,7 @@ class ItemController extends Controller
             'supply' =>$request->get('supply'),
             'catalog_price' => $validated['catalog_price'],
             'product_type' => $validated['product_type'],
-            'inventory' => 0,
+            'inventory' => $validated['inventory'],
             'remarks' => $request->get('remarks'),
         ]);
 
@@ -126,6 +128,7 @@ class ItemController extends Controller
             'supply' => ['sometimes'],
             'catalog_price' => ['required'],
             'product_type' => ['required'],
+            'inventory' => ['required'],
             'images' => ['sometimes', 'array'],
             'images.*' => ['image']
         ]);
@@ -141,7 +144,7 @@ class ItemController extends Controller
             'supply' =>$request->get('supply'),
             'catalog_price' => $validated['catalog_price'],
             'product_type' => $validated['product_type'],
-            'inventory' => 0,
+            'inventory' => (int)$validated['inventory'],
             'remarks' => $request->get('remarks'),
         ]);
 
@@ -250,5 +253,23 @@ class ItemController extends Controller
         }
 
         return response()->file($path);
+    }
+
+
+    public function report(Request $request)
+    {
+        $analyticsService = new ItemsAnalyticsService();
+        $year = $request->get('year', date('Y'));
+        $month = $request->get('month', date('m'));
+
+        $analytics = $analyticsService->getItemsAnalytics($year, $month);
+
+        return Inertia::render('Admin/ItemReport', [
+            'analytics' => $analytics,
+            'filters' => [
+                'year' => $year,
+                'month' => $month,
+            ],
+        ]);
     }
 }
