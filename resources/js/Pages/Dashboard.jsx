@@ -777,8 +777,15 @@ export default function AdminDashboard() {
                                         className="flex items-center justify-between p-3 border rounded-lg"
                                     >
                                         <div>
-                                            <p className="font-medium text-sm">
-                                                {order.sales_order_number}
+                                            <p className="font-semibold text-sm text-blue-600">
+                                                <Link
+                                                    href={route(
+                                                        "sales.order.show",
+                                                        order.id
+                                                    )}
+                                                >
+                                                    {order.sales_order_number}
+                                                </Link>
                                             </p>
                                             <p className="text-xs text-muted-foreground">
                                                 {order.customer_name}

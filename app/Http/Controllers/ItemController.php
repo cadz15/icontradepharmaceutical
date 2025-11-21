@@ -16,12 +16,61 @@ class ItemController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $items = Item::with('images')->oldest('brand_name')->paginate(15);
+        $query = Item::with('images');
+
+        // Search functionality
+        if ($request->has('search') && !empty($request->search)) {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('brand_name', 'like', "%{$searchTerm}%")
+                  ->orWhere('generic_name', 'like', "%{$searchTerm}%");
+            });
+        }
+
+        // Product Type filter
+        if ($request->has('product_type') && !empty($request->product_type) && $request->product_type !== 'all') {
+            $query->where('product_type', $request->product_type);
+        }
+
+        // Inventory Status filter
+        if ($request->has('inventory_status') && !empty($request->inventory_status) && $request->inventory_status !== 'all') {
+            switch ($request->inventory_status) {
+                case 'out_of_stock':
+                    $query->where('inventory', '<=', 0);
+                    break;
+                case 'very_low':
+                    $query->where('inventory', '>', 0)->where('inventory', '<', 5);
+                    break;
+                case 'low':
+                    $query->where('inventory', '>=', 5)->where('inventory', '<', 10);
+                    break;
+                case 'medium':
+                    $query->where('inventory', '>=', 10)->where('inventory', '<', 20);
+                    break;
+                case 'good':
+                    $query->where('inventory', '>=', 20);
+                    break;
+            }
+        }
+
+        // Sorting
+        $sortBy = $request->get('sort_by', 'brand_name');
+        $sortOrder = $request->get('sort_order', 'asc');
+
+        // Validate sort fields to prevent SQL injection
+        $allowedSortFields = ['brand_name', 'generic_name', 'catalog_price', 'inventory', 'product_type'];
+        $sortBy = in_array($sortBy, $allowedSortFields) ? $sortBy : 'brand_name';
+        $sortOrder = in_array($sortOrder, ['asc', 'desc']) ? $sortOrder : 'asc';
+
+        $query->orderBy($sortBy, $sortOrder);
+
+        $items = $query->paginate(15)->withQueryString();
 
         return Inertia::render('Admin/Items', [
-            'items' => $items
+            'items' => $items,
+            'filters' => $request->only(['search', 'product_type', 'inventory_status', 'sort_by', 'sort_order'])
         ]);
     }
 
