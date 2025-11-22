@@ -125,10 +125,10 @@ class MobileSalesOrderController extends Controller
     }
 
 
-    public function analytics(AnalyticsServices $analytics)
+    public function analytics(AnalyticsServices $analytics, Request $request)
     {
         return response()->json([
-            'analytics' => $analytics->medRepDashboard()
+            'analytics' => $analytics->medRepDashboard($request->user())
         ]);
     }
 }

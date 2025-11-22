@@ -268,8 +268,8 @@ class AdminAnalyticsService
                         'id' => $event->id,
                         'title' => $event->title,
                         'event_type' => $event->event_type,
-                        'start_time' => $event->start_time ? $event->start_time->format('H:i') : null,
-                        'end_time' => $event->end_time ? $event->end_time->format('H:i') : null,
+                        'start_time' => $event->start_time ? Carbon::parse($event->start_time)->format('H:i') : null,
+                        'end_time' => $event->end_time ? Carbon::parse($event->end_time)->format('H:i') : null,
                         'status' => $event->status,
                         'medical_representative' => $event->medicalRepresentative->name,
                         'customer' => $event->customer?->name,
@@ -279,8 +279,8 @@ class AdminAnalyticsService
                         'is_multi_day' => $isMultiDay,
                         'is_first_day' => $isFirstDay,
                         'is_last_day' => $isLastDay,
-                        'event_date' => $event->event_date->format('Y-m-d'),
-                        'end_date' => $event->end_date ? $event->end_date->format('Y-m-d') : null,
+                        'event_date' => Carbon::parse($event->event_date)->format('Y-m-d'),
+                        'end_date' => $event->end_date ? Carbon::parse($event->end_date)->format('Y-m-d') : null,
                     ];
                 })->toArray(),
             ];

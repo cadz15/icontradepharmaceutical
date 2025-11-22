@@ -192,7 +192,7 @@ class MedicalRepresentativeAnalyticsService
             $product['trends'] = array_values($product['trends']);
         }
 
-        $productsData = collect($productsData)->sortBy('total_quantity')->values()->toArray();
+        $productsData = collect($productsData)->sortBy('total_quantity', SORT_REGULAR, true)->take(10)->values()->toArray();
 
         return [
             'products' => $productsData,
@@ -291,8 +291,8 @@ class MedicalRepresentativeAnalyticsService
                         'id' => $event->id,
                         'title' => $event->title,
                         'event_type' => $event->event_type,
-                        'start_time' => $event->start_time ? $event->start_time->format('H:i') : null,
-                        'end_time' => $event->end_time ? $event->end_time->format('H:i') : null,
+                        'start_time' => $event->start_time ? Carbon::parse($event->start_time)->format('H:i') : null,
+                        'end_time' => $event->end_time ? Carbon::parse($event->end_time)->format('H:i') : null,
                         'status' => $event->status,
                         'customer' => $event->customer?->name,
                         'description' => $event->description,
@@ -301,8 +301,8 @@ class MedicalRepresentativeAnalyticsService
                         'is_multi_day' => $isMultiDay,
                         'is_first_day' => $isFirstDay,
                         'is_last_day' => $isLastDay,
-                        'event_date' => $event->event_date->format('Y-m-d'),
-                        'end_date' => $event->end_date ? $event->end_date->format('Y-m-d') : null,
+                        'event_date' => Carbon::parse($event->event_date)->format('Y-m-d'),
+                        'end_date' => $event->end_date ? Carbon::parse($event->end_date)->format('Y-m-d') : null,
                     ];
                 })->toArray(),
             ];
