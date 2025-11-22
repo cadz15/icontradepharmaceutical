@@ -43,8 +43,11 @@ class SalesOrderController extends Controller
                 $query->oldest('total');
             }
         })
-        ->when($search != "", function($query) use($customerIds){
-            $query->whereIn('customer_id', $customerIds);
+        ->when($search != "", function($query) use($customerIds, $search){
+            $query->where(function($subQuery) use($customerIds, $search) {
+                $subQuery->whereIn('customer_id', $customerIds)
+                ->orWhere('sales_order_number', 'like', "%$search%");
+            });
         })
         ->when($status != "all", function($query) use($status){
             $query->where('status', $status);
