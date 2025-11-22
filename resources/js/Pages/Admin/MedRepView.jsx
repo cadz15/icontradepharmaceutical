@@ -1648,10 +1648,10 @@ export default function MedicalRepresentativeShow() {
                                                         )}
                                                     </TableCell>
                                                     <TableCell>
-                                                        {order.salesOrderItems.some(
+                                                        {order.sales_order_items.some(
                                                             (item) =>
-                                                                item.free_item_quantity >
-                                                                0
+                                                                item.promo ===
+                                                                "free"
                                                         ) ? (
                                                             <Badge
                                                                 variant="outline"
@@ -1666,9 +1666,10 @@ export default function MedicalRepresentativeShow() {
                                                         )}
                                                     </TableCell>
                                                     <TableCell>
-                                                        {order.salesOrderItems.some(
+                                                        {order.sales_order_items.some(
                                                             (item) =>
-                                                                item.discount
+                                                                item.promo ===
+                                                                "discount"
                                                         ) ? (
                                                             <Badge
                                                                 variant="outline"

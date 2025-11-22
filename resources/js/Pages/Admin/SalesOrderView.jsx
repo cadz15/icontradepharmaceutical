@@ -121,7 +121,7 @@ function SalesOrderView() {
                         </div>
                     </div>
                 );
-            case "free_item":
+            case "free":
                 return (
                     <div className="space-y-1">
                         <Badge
