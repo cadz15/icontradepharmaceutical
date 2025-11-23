@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Http\Response;
 
 class MobileCustomerController extends Controller
@@ -165,5 +166,11 @@ class MobileCustomerController extends Controller
             'message' => 'DCR Successfully created!',
             'id' => $dcr ? $dcr->id : null,
         ], Response::HTTP_OK);
+    }
+
+    public function getDcr(Request $request) {
+        $medRepId = $request->user()->id;
+
+        return ResourceCollection::collection(Dcr::where('medical_representative_id', $medRepId)->latest()->get());
     }
 }
