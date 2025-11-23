@@ -171,6 +171,6 @@ class MobileCustomerController extends Controller
     public function getDcr(Request $request) {
         $medRepId = $request->user()->id;
 
-        return ResourceCollection::collection(Dcr::where('medical_representative_id', $medRepId)->latest()->get());
+        return ResourcesCustomer::collection(Dcr::where('medical_representative_id', $medRepId)->latest()->get());
     }
 }
