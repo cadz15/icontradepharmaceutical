@@ -155,7 +155,7 @@ class MobileCustomerAnalyticsService
         ];
     }
 
-    public function getSalesTrendAnalytics($period = 30, $year)
+    public function getSalesTrendAnalytics($period = 30, $year= null)
     {
         $startDate = Carbon::now()->setYear($year)->subDays($period);
 
