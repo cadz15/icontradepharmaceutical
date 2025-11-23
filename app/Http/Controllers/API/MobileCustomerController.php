@@ -153,7 +153,7 @@ class MobileCustomerController extends Controller
                 'practice' => $validated['practice'],
                 'signature' => $request->get('signature'),
                 'remarks' => $request->get('remarks'),
-                'sync_date' => now()->format('M/d/Y')
+                'sync_date' => now()->format('M d, Y')
             ]);
 
         } catch (\Throwable $th) {
