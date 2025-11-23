@@ -43,7 +43,7 @@ class MobileMedicalRepresentativeController extends Controller
      */
     public function index()
     {
-        //
+        //analtyics; statistics, product distribution, product sold trent, sales per year
     }
 
     /**

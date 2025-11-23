@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Customer as ResourcesCustomer;
 use App\Models\Customer;
 use App\Models\Dcr;
+use App\Services\MobileCustomerAnalyticsService;
+use Carbon\Carbon;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -73,12 +76,41 @@ class MobileCustomerController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified resource. Analytics
      */
-    public function show(string $id)
+    public function show(string $id, Request $request): JsonResponse
     {
-        //
+        try {
+            // Validate customer exists
+            $customer = Customer::find($id);
+            if (!$customer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Customer not found'
+                ], 404);
+            }
+
+            // Get parameters with defaults
+            $year = $request->get('year', Carbon::now()->year);
+            $period = $request->get('period', 30);
+
+            $analyticsService = new MobileCustomerAnalyticsService($customer);
+            $analytics = $analyticsService->getCustomerAnalytics($period, $year);
+
+            return response()->json([
+                'success' => true,
+                'data' => $analytics
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load customer analytics',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
+    
 
     /**
      * Update the specified resource in storage.
@@ -102,8 +134,8 @@ class MobileCustomerController extends Controller
             'name'=> ['required'],
             'customerOnlineId' => ['required'],
             'customerId' => ['required'],
-            'dcrDate' => ['sometimes'],
-            'practice' => ['required'],
+            'dcrDate' => ['required'],
+            'practice' => ['sometimes'],
             'signature' => ['sometimes'],
             'remarks'=> ['sometimes'],
             'syncDate'=> ['sometimes'],
