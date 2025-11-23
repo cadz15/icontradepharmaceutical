@@ -22,16 +22,16 @@ class MobileCustomerAnalyticsService
         $year = $year ?: Carbon::now()->year;
 
         return [
-            'statistics' => $this->getStatistics($period),
-            'productTypeData' => $this->getProductTypeAnalytics($period),
-            'salesTrendData' => $this->getSalesTrendAnalytics($period),
-            'currentSalesOrders' => $this->getCurrentSalesOrders(),
-            'historySalesOrders' => $this->getHistorySalesOrders($period),
+            'statistics' => $this->getStatistics($period, $year),
+            'productTypeData' => $this->getProductTypeAnalytics($period, $year),
+            'salesTrendData' => $this->getSalesTrendAnalytics($period, $year),
+            'currentSalesOrders' => $this->getCurrentSalesOrders($year),
+            'historySalesOrders' => $this->getHistorySalesOrders($period, $year),
             'productPurchaseTrend' => $this->getProductPurchaseTrendByYear($year),
         ];
     }
 
-    public function getStatistics($period = 30)
+    public function getStatistics($period = 30, $year = null)
     {
         // Total Purchase (all time)
         $totalPurchase = SalesOrder::where('customer_id', $this->customer->id)
@@ -41,6 +41,7 @@ class MobileCustomerAnalyticsService
         $mostPurchasedType = SalesOrderItem::join('sales_orders', 'sales_order_items.sales_order_id', '=', 'sales_orders.id')
             ->join('items', 'sales_order_items.item_id', '=', 'items.id')
             ->where('sales_orders.customer_id', $this->customer->id)
+            ->where('sales_orders.date_sold', 'like', "%$year%")
             ->select('items.product_type', DB::raw('SUM(sales_order_items.quantity) as total_quantity'))
             ->groupBy('items.product_type')
             ->orderBy('total_quantity', 'desc')
@@ -62,11 +63,12 @@ class MobileCustomerAnalyticsService
         ];
     }
 
-    public function getProductTypeAnalytics($period = 30)
+    public function getProductTypeAnalytics($period = 30, $year = null)
     {
         return SalesOrderItem::join('sales_orders', 'sales_order_items.sales_order_id', '=', 'sales_orders.id')
             ->join('items', 'sales_order_items.item_id', '=', 'items.id')
             ->where('sales_orders.customer_id', $this->customer->id)
+            ->where('sales_orders.date_sold', 'like', "%$year%")
             ->select('items.product_type', DB::raw('SUM(sales_order_items.quantity) as total_quantity'))
             ->groupBy('items.product_type')
             ->orderBy('total_quantity', 'desc')
@@ -153,9 +155,9 @@ class MobileCustomerAnalyticsService
         ];
     }
 
-    public function getSalesTrendAnalytics($period = 30)
+    public function getSalesTrendAnalytics($period = 30, $year)
     {
-        $startDate = Carbon::now()->subDays($period);
+        $startDate = Carbon::now()->setYear($year)->subDays($period);
 
         return SalesOrder::where('customer_id', $this->customer->id)
             ->where('created_at', '>=', $startDate)

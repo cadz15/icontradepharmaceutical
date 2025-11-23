@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('dcrs', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->bigInteger('medical_representative_id');
             $table->bigInteger('customer_id');
             $table->string('dcr_date');
             $table->text('signature')->nullable();

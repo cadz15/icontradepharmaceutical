@@ -146,9 +146,10 @@ class MobileCustomerController extends Controller
         try {
             $dcr = Dcr::create([
                 'name' => $validated['name'],
+                'medical_representative_id' => $request->user()->id,
                 'customer_id' => $validated['customerOnlineId'],
                 'dcr_date' => $validated['dcrDate'],
-                'pract-ce' => $validated['practice'],
+                'practice' => $validated['practice'],
                 'signature' => $request->get('signature'),
                 'remarks' => $request->get('remarks'),
                 'sync_date' => now()->format('M/d/Y')
