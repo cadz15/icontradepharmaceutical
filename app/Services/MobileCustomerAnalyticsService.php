@@ -157,7 +157,7 @@ class MobileCustomerAnalyticsService
 
     public function getSalesTrendAnalytics($period = 30, $year= null)
     {
-        $startDate = Carbon::now()->setYear($year)->subDays($period);
+        $startDate = Carbon::now()->subDays($period);
 
         return SalesOrder::where('customer_id', $this->customer->id)
             ->where('created_at', '>=', $startDate)
