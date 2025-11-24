@@ -7,6 +7,7 @@ use App\Http\Resources\SalesOrder as ResourcesSalesOrder;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderItem;
 use App\Services\AnalyticsServices;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -61,7 +62,7 @@ class MobileSalesOrderController extends Controller
                 'customer_id' => $request->get('customerOnlineId'),
                 'medical_representative_id' => $request->user()->id,
                 'sales_order_number' => $validated['salesOrderNumber'],
-                'date_sold' => $validated['dateSold'],
+                'date_sold' => Carbon::parse($validated['dateSold'])->format('m/d/Y'),
                 'total' => $validated['total'],
                 'remarks' => $validated['remarks'],
                 'sync_date' => now()->format('m/d/Y'),

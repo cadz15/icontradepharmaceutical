@@ -19,13 +19,19 @@ class AnalyticsServices {
         $currentYear = Carbon::now()->year;
 
         // 1. Total Sales (current month)
-        $totalSales = SalesOrder::whereRaw('STR_TO_DATE(date_sold, "%m/%d/%Y") BETWEEN ? AND ?', [$startOfMonth, $endOfMonth])
+        $totalSales = SalesOrder::where(function($subQuery) use($startOfMonth, $endOfMonth) {
+                $subQuery->whereRaw('STR_TO_DATE(date_sold, "%m/%d/%Y") BETWEEN ? AND ?', [$startOfMonth, $endOfMonth])
+                ->orWhereRaw('STR_TO_DATE(date_sold, "%M %d, %Y") BETWEEN ? AND ?', [$startOfMonth, $endOfMonth]);
+            })
             ->where('medical_representative_id', $medRep)
             ->whereNull('deleted_at')
             ->sum('total');
             
         // 2. Unique Customers (current month)
-        $uniqueCustomers = SalesOrder::whereRaw('STR_TO_DATE(date_sold, "%m/%d/%Y") BETWEEN ? AND ?', [$startOfMonth, $endOfMonth])
+        $uniqueCustomers = SalesOrder::where(function($subQuery) use($startOfMonth, $endOfMonth) {
+                $subQuery->whereRaw('STR_TO_DATE(date_sold, "%m/%d/%Y") BETWEEN ? AND ?', [$startOfMonth, $endOfMonth])
+                ->orWhereRaw('STR_TO_DATE(date_sold, "%M %d, %Y") BETWEEN ? AND ?', [$startOfMonth, $endOfMonth]);
+            })
             ->where('medical_representative_id', $medRep)
             ->whereNull('deleted_at')
             ->distinct('customer_id')
@@ -35,7 +41,10 @@ class AnalyticsServices {
         $mostPopularProductType = DB::table('sales_order_items')
             ->join('sales_orders', 'sales_order_items.sales_order_id', '=', 'sales_orders.id')
             ->join('items', 'sales_order_items.item_id', '=', 'items.id')
-            ->whereRaw("STR_TO_DATE(sales_orders.date_sold, '%m/%d/%Y') BETWEEN ? AND ?", [$startOfMonth, $endOfMonth])
+            ->where(function($subQuery) use($startOfMonth, $endOfMonth) {
+                $subQuery->whereRaw('STR_TO_DATE(date_sold, "%m/%d/%Y") BETWEEN ? AND ?', [$startOfMonth, $endOfMonth])
+                ->orWhereRaw('STR_TO_DATE(date_sold, "%M %d, %Y") BETWEEN ? AND ?', [$startOfMonth, $endOfMonth]);
+            })
             ->where('sales_orders.medical_representative_id', $medRep)
             ->whereNull('sales_orders.deleted_at')
             ->select('items.product_type', DB::raw('SUM(sales_order_items.quantity) as total_quantity'))
