@@ -21,30 +21,35 @@ class CustomerController extends Controller
         $hasPharmacist = $request->get('hasPharmacist');
         $s3 = $request->get('s3');
 
-        $customers = Customer::when($search != "", function($query) use($search) {
+
+        $customers = Customer::when($search && $search != "", function($query) use($search) {
             $query->where('name', 'like', "%$search%");
         })
-        ->when($address != "", function($query) use($address) {
+        ->when($address && $address != "", function($query) use($address) {
             $query->where('full_address', 'like', "%$address%");
         })
-        ->when($practice != "", function($query) use($practice) {
+        ->when($practice && $practice != "", function($query) use($practice) {
             $query->where('practice', 'like', "%$practice%");
         })
-        ->when($hasPharmacist != "all", function($query) use($hasPharmacist) {
+        ->when($hasPharmacist && $hasPharmacist != "all", function($query) use($hasPharmacist) {
             if($hasPharmacist == "yes") {
                 $query->whereNotNull('pharmacist_name');
             }else {
-                $query->whereNull('pharmacist_name')->orWhere('pharmacist_name', "");
+                $query->where(function($subQuery) {
+                    $subQuery->whereNull('pharmacist_name')->orWhere('pharmacist_name', "");
+                });
             }
         })
-        ->when($s3 != "", function($query) use($s3) {
+        ->when($s3 && $s3 != "all", function($query) use($s3) {
             if($s3 == "yes") {
                 $query->whereNotNull('s3_license');
             }else {
-                $query->whereNull('s3_license')->orWhere('s3_license', "");
+                $query->where(function($subQuery) {
+                    $subQuery->whereNull('s3_license')->orWhere('s3_license', "");
+                });
             }
         })
-        ->latest()->paginate(15);
+        ->latest()->paginate(15)->withQueryString();
 
 
         $total = Customer::query()

@@ -52,7 +52,7 @@ class SalesOrderController extends Controller
         ->when($status != "all", function($query) use($status){
             $query->where('status', $status);
         })
-        ->latest()->paginate(15);
+        ->latest()->paginate(15)->withQueryString();
         
         return Inertia::render('Admin/SalesOrder', [
             'sales' => $sales,

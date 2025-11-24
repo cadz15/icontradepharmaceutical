@@ -19,7 +19,7 @@ const Navbar = () => {
 
                 <div className="flex items-center space-x-4">
                     <div className="flex space-x-2">
-                        {["Globe", "Bell", "Settings"].map((icon, idx) => {
+                        {["Settings"].map((icon, idx) => {
                             const Icon = {
                                 Globe,
                                 Bell,

@@ -152,7 +152,7 @@ export default function Customers() {
             } else {
                 setFirstStart(false);
             }
-        }, 400);
+        }, 800);
         return () => clearTimeout(timeout);
     }, [filters]);
 
