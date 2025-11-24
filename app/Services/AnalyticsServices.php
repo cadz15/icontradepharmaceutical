@@ -14,20 +14,18 @@ class AnalyticsServices {
         $medRep = $user->id;
 
         // Get start and end of current month
-        $startOfMonth = Carbon::now()->startOfMonth()->format('Y-m-d');
-        $endOfMonth = Carbon::now()->endOfMonth()->format('Y-m-d');
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $endOfMonth = Carbon::now()->endOfMonth();
         $currentYear = Carbon::now()->year;
 
         // 1. Total Sales (current month)
-        $totalSales = DB::table('sales_orders')
-            ->whereRaw("STR_TO_DATE(date_sold, '%m/%d/%Y') BETWEEN ? AND ?", [$startOfMonth, $endOfMonth])
+        $totalSales = SalesOrder::whereRaw('STR_TO_DATE(date_sold, "%m/%d/%Y") BETWEEN ? AND ?', [$startOfMonth, $endOfMonth])
             ->where('medical_representative_id', $medRep)
             ->whereNull('deleted_at')
             ->sum('total');
-
+            
         // 2. Unique Customers (current month)
-        $uniqueCustomers = DB::table('sales_orders')
-            ->whereRaw("STR_TO_DATE(date_sold, '%m/%d/%Y') BETWEEN ? AND ?", [$startOfMonth, $endOfMonth])
+        $uniqueCustomers = SalesOrder::whereRaw('STR_TO_DATE(date_sold, "%m/%d/%Y") BETWEEN ? AND ?', [$startOfMonth, $endOfMonth])
             ->where('medical_representative_id', $medRep)
             ->whereNull('deleted_at')
             ->distinct('customer_id')
@@ -48,8 +46,7 @@ class AnalyticsServices {
             ->first();
 
         // 4. Monthly Total Sales (for current year)
-        $monthlySales = DB::table('sales_orders')        
-            ->where('medical_representative_id', $medRep)
+        $monthlySales = SalesOrder::where('medical_representative_id', $medRep)
             ->whereNull('deleted_at')
             ->selectRaw("MONTH(STR_TO_DATE(date_sold, '%m/%d/%Y')) as month, SUM(total) as total_sales")
             ->whereRaw("YEAR(STR_TO_DATE(date_sold, '%m/%d/%Y')) = ?", [$currentYear])
