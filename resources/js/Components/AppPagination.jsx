@@ -77,7 +77,15 @@ function AppPagination({ paginationData }) {
                 {/* Last Page */}
                 {current_page < last_page - 1 && (
                     <PaginationItem>
-                        <Link href={links[last_page]?.url} preserveState>
+                        <Link
+                            href={
+                                links.filter(
+                                    (page) =>
+                                        page.label === last_page.toString()
+                                )[0]?.url
+                            }
+                            preserveState
+                        >
                             <PaginationLink>{last_page}</PaginationLink>
                         </Link>
                     </PaginationItem>
