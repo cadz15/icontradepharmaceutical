@@ -131,7 +131,7 @@ class AnalyticsServices {
         ->where('status', 'scheduled')
         ->get(['id', 'title', 'start_time', 'event_type', 'event_date', 'end_date'])
         ->groupBy(function ($event) {
-            return $event->event_date;  // key like "2025-12-15"
+            return $event->event_date;  // Group by event date (key like "2025-12-15")
         })
         ->map(function ($group) {
             return $group->map(function ($event) {
@@ -140,16 +140,18 @@ class AnalyticsServices {
                 $title = $event->title;
 
                 if (!empty($event->end_date)) {
+                    // Format the date range if the event is multi-day
                     $startDay = Carbon::parse($event->event_date)->format('d');
                     $endDay   = Carbon::parse($event->end_date)->format('d');
                     $title .= " ({$startDay} - {$endDay})";
                 }
 
+                // Return the structured event
                 return [
-                    'id'   => $event->id,
-                    'title'=> $title,
-                    'time' => Carbon::parse($event->start_time)->format('g:i A'),
-                    'type' => $event->event_type,
+                    'id'    => $event->id,
+                    'title' => $title,
+                    'time'  => Carbon::parse($event->start_time)->format('g:i A'),  // Format the time as "g:i A"
+                    'type'  => $event->event_type,
                 ];
             });
         });
@@ -179,9 +181,7 @@ class AnalyticsServices {
                 "read" => false,
                 ],
             ],
-            "schedules" => [
-                $events->toArray()
-            ],
+            "schedules" => $events,
         ];
     }
 }
