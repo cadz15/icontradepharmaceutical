@@ -22,6 +22,7 @@ import {
     FaUserDoctor,
     FaHandHoldingMedical,
     FaMoneyCheckDollar,
+    FaUserGear,
 } from "react-icons/fa6";
 import {
     Collapsible,
@@ -71,6 +72,12 @@ const items = [
                 route: "items.report",
             },
         ],
+    },
+    {
+        title: "Users",
+        route: "users.index",
+        icon: FaUserGear,
+        isSingle: true,
     },
 ];
 

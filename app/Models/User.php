@@ -43,6 +43,19 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_admin' => 'boolean',
         ];
+    }
+
+     // Check if user is super admin (ID 1)
+    public function isSuperAdmin(): bool
+    {
+        return $this->id === 1;
+    }
+
+    // Check if user is admin
+    public function isAdmin(): bool
+    {
+        return $this->is_admin || $this->isSuperAdmin();
     }
 }

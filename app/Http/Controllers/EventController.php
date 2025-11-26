@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\MedicalRepresentative;
+use App\Models\MobileNotification;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -27,6 +28,19 @@ class EventController extends Controller
         ]);
 
         $event = Event::create($validated);
+
+        try {
+            //code...
+            MobileNotification::create([
+                'medical_representative_id' => $validated['medical_representative_id'],
+                'title' => 'New Event has been posted!',
+                'message' => $validated['title'] . " will be held on " . $validated['event_date'],
+                'type' => 'info',
+                'read' => false
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
 
         return redirect()->back()->with('success', 'Event created successfully.');
     }

@@ -26,9 +26,14 @@ const Navbar = () => {
                                 Settings,
                             }[icon];
                             return (
-                                <Button key={idx} variant="ghost" size="icon">
+                                <Link
+                                    href={route("profile.password.edit")}
+                                    key={idx}
+                                    variant="ghost"
+                                    size="icon"
+                                >
                                     <Icon className="h-5 w-5" />
-                                </Button>
+                                </Link>
                             );
                         })}
                     </div>

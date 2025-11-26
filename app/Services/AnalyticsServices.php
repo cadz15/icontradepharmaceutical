@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Event;
+use App\Models\MobileNotification;
 use App\Models\SalesOrder;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -157,6 +158,22 @@ class AnalyticsServices {
             });
         });
 
+
+        $notifications = MobileNotification::where('medical_representative_id', $medRep)
+        ->latest()
+        ->limit(15)
+        ->get()
+        ->map(function ($n) {
+            return [
+                'id' => $n->id,
+                'title' => $n->title,
+                'message' => $n->message,
+                'time' => $n->created_at->diffForHumans(),  // "2 mins ago"
+                'type' => $n->type,
+                'read' => (bool) $n->read,
+            ];
+        });
+
         return [
             "monthlySales" => $totalSales,
             "totalCustomersSold" => $uniqueCustomers,
@@ -172,16 +189,8 @@ class AnalyticsServices {
                 [ "name" => "Generic", "population" => $pieData->firstWhere('product_type', 'non-exclusive')['percentage'] ?? 0, "color" => "#3b82f6" ],
                 [ "name" => "Regulated", "population" => $pieData->firstWhere('product_type', 'regulated')['percentage'] ?? 0, "color" => "#f59e0b" ],
             ],
-            "notifications" => [
-                [
-                "id" => 1,
-                "title" => "Sample Notification",
-                "message" => "Order #ORD-0012 has been placed by Customer A",
-                "time" => "2 mins ago",
-                "type" => "order", //order, alert, success, info
-                "read" => false,
-                ],
-            ],
+            "notifications" => $notifications->toArray()
+            ,
             "schedules" => $events,
         ];
     }

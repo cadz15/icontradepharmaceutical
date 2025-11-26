@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use App\Models\Item;
 use App\Models\MedicalRepresentative;
+use App\Models\MobileNotification;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderItem;
 use Illuminate\Http\Request;
@@ -155,6 +156,20 @@ class SalesOrderController extends Controller
                 'status' => $validated['status'],
                 'sync_date' => ''
             ]);
+
+            try {
+                //code...
+                MobileNotification::create([
+                    'medical_representative_id' => $salesOrder->medical_representative_id,
+                    'title' => 'Sales Order Notification!',
+                    'message' => "Your S.O. $salesOrder->sales_order_number has been set to " . $validated['status'],
+                    'type' => 'order',
+                    'read' => false
+                ]);
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
+
 
             // decrease items inventory if approved
             if($validated['status'] == 'acknowledge-approved') {
