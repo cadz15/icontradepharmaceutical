@@ -129,7 +129,7 @@ class AnalyticsServices {
 
         $events = Event::where('medical_representative_id', $medRep)
         ->where('status', 'scheduled')
-        ->get(['id', 'title', 'start_time', 'event_type', 'event_date', 'end_date'])
+        ->get(['id', 'title', 'start_time', 'event_type', 'event_date', 'end_date', 'description'])
         ->groupBy(function ($event) {
             return $event->event_date;  // Group by event date (key like "2025-12-15")
         })
@@ -151,6 +151,7 @@ class AnalyticsServices {
                     'id'    => $event->id,
                     'title' => $title,
                     'time'  => Carbon::parse($event->start_time)->format('g:i A'),  // Format the time as "g:i A"
+                    'description' => $event->description,
                     'type'  => $event->event_type,
                 ];
             });
