@@ -224,13 +224,14 @@ class MedicalRepresentativeAnalyticsService
     public function getDCRs($month)
     {
         return Dcr::with(['customer'])
-            ->where('medical_representative_id', $this->medicalRepresentative->id)
-            ->whereRaw(
+        ->where('medical_representative_id', $this->medicalRepresentative->id)
+        ->whereRaw(
             "MONTH(STR_TO_DATE(dcr_date, '%b. %d, %Y')) = ?", 
             [$month]
         )
-            ->orderBy('dcr_date', 'desc')
-            ->paginate(15);
+        ->orderByRaw("STR_TO_DATE(dcr_date, '%b. %d, %Y') ASC")
+        ->paginate(15);
+
     }
 
     public function getEventsByMonth($year = null, $month = null)
