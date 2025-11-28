@@ -229,7 +229,7 @@ class MedicalRepresentativeAnalyticsService
             "MONTH(STR_TO_DATE(dcr_date, '%b. %d, %Y')) = ?", 
             [$month]
         )
-        ->orderByRaw("STR_TO_DATE(dcr_date, '%b. %d, %Y') ASC")
+        ->orderByRaw("STR_TO_DATE(dcr_date, '%b. %d, %Y') DESC")
         ->paginate(15);
 
     }
