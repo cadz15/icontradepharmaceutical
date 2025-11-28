@@ -147,13 +147,20 @@ class AdminController extends Controller
         }
 
         // Date range filter
-        if ($request->has('start_date') && !empty($request->start_date)) {
-            $query->where('dcr_date', '>=', $request->start_date);
+        if ($request->filled('start_date')) {
+            $query->whereRaw(
+                "STR_TO_DATE(dcr_date, '%b. %d, %Y') >= STR_TO_DATE(?, '%Y-%m-%d')",
+                [$request->start_date]
+            );
         }
 
-        if ($request->has('end_date') && !empty($request->end_date)) {
-            $query->where('dcr_date', '<=', $request->end_date);
+        if ($request->filled('end_date')) {
+            $query->whereRaw(
+                "STR_TO_DATE(dcr_date, '%b. %d, %Y') <= STR_TO_DATE(?, '%Y-%m-%d')",
+                [$request->end_date]
+            );
         }
+
 
         // Signature filter
         if ($request->has('has_signature') && $request->has_signature !== 'all') {
@@ -172,7 +179,13 @@ class AdminController extends Controller
         $sortBy = in_array($sortBy, $allowedSortFields) ? $sortBy : 'dcr_date';
         $sortOrder = in_array($sortOrder, ['asc', 'desc']) ? $sortOrder : 'desc';
 
-        $query->orderBy($sortBy, $sortOrder);
+        // If sorting by dcr_date → convert to real date
+        if ($sortBy === 'dcr_date') {
+            $query->orderByRaw("STR_TO_DATE(dcr_date, '%b. %d, %Y') $sortOrder");
+        } else {
+            $query->orderBy($sortBy, $sortOrder);
+        }
+
 
         $dcrs = $query->paginate(20)->withQueryString();
 
