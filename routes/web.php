@@ -36,7 +36,9 @@ Route::middleware(['auth', 'auth.isAdmin'])->group(function() {
     Route::delete('/customer/{id}', [CustomerController::class, 'destroy'])->name('customer.delete');
 
 
-     Route::post('/events', [EventController::class, 'store'])->name('events.store');
+    Route::get('/dcrs', [AdminController::class, 'showDcr'])->name('dcrs.index');
+
+    Route::post('/events', [EventController::class, 'store'])->name('events.store');
     Route::put('/events/{event}', [EventController::class, 'update'])->name('events.update');
     Route::delete('/events/{event}', [EventController::class, 'destroy'])->name('events.destroy');
 

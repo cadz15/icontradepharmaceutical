@@ -1360,7 +1360,8 @@ export default function MedicalRepresentativeShow() {
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     <FileText className="h-5 w-5" />
-                                    Daily Call Reports (DCR)
+                                    Daily Call Reports (DCR) -{" "}
+                                    {monthNames[currentMonth - 1]}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>

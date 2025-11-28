@@ -32,7 +32,7 @@ class MedicalRepresentativeAnalyticsService
             'salesOrders' => $this->getSalesOrders(),
             'productSoldTrend' => $this->getProductSoldTrendByYear($year),
             'salesWithFreeItemsDiscounts' => $this->getSalesWithFreeItemsDiscounts(),
-            'dcrs' => $this->getDCRs(), // Add this line
+            'dcrs' => $this->getDCRs($month), // Add this line
             'eventsCalendar' => $this->getEventsForCalendar($year, $month), // Add this
             'currentMonth' => $month,
             'currentYear' => $year,
@@ -221,12 +221,14 @@ class MedicalRepresentativeAnalyticsService
             ->paginate(15);
     }
 
-    public function getDCRs()
+    public function getDCRs($month)
     {
         return Dcr::with(['customer'])
-            ->whereHas('customer.salesOrders', function($query) {
-                $query->where('medical_representative_id', $this->medicalRepresentative->id);
-            })
+            ->where('medical_representative_id', $this->medicalRepresentative->id)
+            ->whereRaw(
+            "MONTH(STR_TO_DATE(dcr_date, '%b. %d, %Y')) = ?", 
+            [$month]
+        )
             ->orderBy('dcr_date', 'desc')
             ->paginate(15);
     }

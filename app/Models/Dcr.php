@@ -13,4 +13,9 @@ class Dcr extends Model
     {
         return $this->belongsTo(Customer::class);
     }
+
+    public function medicalRepresentative()
+    {
+        return $this->belongsTo(MedicalRepresentative::class, 'medical_representative_id');
+    }
 }

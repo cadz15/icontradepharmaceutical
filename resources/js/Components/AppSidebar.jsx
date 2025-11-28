@@ -23,6 +23,7 @@ import {
     FaHandHoldingMedical,
     FaMoneyCheckDollar,
     FaUserGear,
+    FaNotesMedical,
 } from "react-icons/fa6";
 import {
     Collapsible,
@@ -72,6 +73,12 @@ const items = [
                 route: "items.report",
             },
         ],
+    },
+    {
+        title: "DCR",
+        route: "dcrs.index",
+        icon: FaNotesMedical,
+        isSingle: true,
     },
     {
         title: "Users",
