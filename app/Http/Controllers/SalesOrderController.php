@@ -19,11 +19,11 @@ class SalesOrderController extends Controller
      */
     public function index(Request $request)
     {
-
         $medRep = $request->get('med_rep');
         $priceSort = $request->get('price_sort');
         $search = $request->get('search');
         $status = $request->get('status');
+        $dateSold = $request->get('date_sold');
         
         $medRepData = MedicalRepresentative::all();
 
@@ -53,11 +53,15 @@ class SalesOrderController extends Controller
         ->when($status != "all", function($query) use($status){
             $query->where('status', $status);
         })
+        ->when($dateSold, function($query) use($dateSold){
+            $query->where('date_sold', $dateSold);
+        })
         ->latest()->paginate(15)->withQueryString();
         
         return Inertia::render('Admin/SalesOrder', [
             'sales' => $sales,
-            'medRepData' => $medRepData
+            'medRepData' => $medRepData,
+            'filters' => $request->all()
         ]);
     }
 

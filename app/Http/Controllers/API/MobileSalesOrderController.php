@@ -58,37 +58,41 @@ class MobileSalesOrderController extends Controller
         $salesItemsIds = [];
 
         try{
-            $salesOrder = SalesOrder::updateOrCreate([
+            $salesOrder = SalesOrder::updateOrCreate(
                 [
                     'sales_order_number' => $validated['salesOrderNumber'],
                     'medical_representatative_id' => $request->user()->id,
                 ],
-                'customer_id' => $request->get('customerOnlineId'),
-                'medical_representative_id' => $request->user()->id,
-                'sales_order_number' => $validated['salesOrderNumber'],
-                'date_sold' => Carbon::parse($validated['dateSold'])->format('m/d/Y'),
-                'total' => $validated['total'],
-                'remarks' => $validated['remarks'],
-                'sync_date' => now()->format('m/d/Y'),
-                'status' => 'pending',
-            ]);
+                [
+                    'customer_id' => $request->get('customerOnlineId'),
+                    'medical_representative_id' => $request->user()->id,
+                    'sales_order_number' => $validated['salesOrderNumber'],
+                    'date_sold' => Carbon::parse($validated['dateSold'])->format('m/d/Y'),
+                    'total' => $validated['total'],
+                    'remarks' => $validated['remarks'],
+                    'sync_date' => now()->format('m/d/Y'),
+                    'status' => 'pending',
+                ]
+            );
 
             foreach ($validated['items'] as $item) {
-                $salesItem = SalesOrderItem::updateOrCreate([
+                $salesItem = SalesOrderItem::updateOrCreate(
                     [
                         'sales_order_id' => $salesOrder->id,
                         'item_id' => $item['itemOnlineId'],
                     ],
-                    'sales_order_id' => $salesOrder->id,
-                    'item_id' => $item['itemOnlineId'],
-                    'quantity' => $item['quantity'],
-                    'promo' => $item['promo'],
-                    'discount' => $item['discount'],
-                    'free_item_quantity' => $item['freeItemQuantity'],
-                    'free_item_remarks' => $item['freeItemRemarks'],
-                    'remarks' => $item['remarks'],
-                    'total' => $item['total']
-                ]);
+                    [
+                        'sales_order_id' => $salesOrder->id,
+                        'item_id' => $item['itemOnlineId'],
+                        'quantity' => $item['quantity'],
+                        'promo' => $item['promo'],
+                        'discount' => $item['discount'],
+                        'free_item_quantity' => $item['freeItemQuantity'],
+                        'free_item_remarks' => $item['freeItemRemarks'],
+                        'remarks' => $item['remarks'],
+                        'total' => $item['total']
+                    ]
+                );
 
                 array_push($salesItemsIds, [$item['id'] => $salesItem->id]);
             }
