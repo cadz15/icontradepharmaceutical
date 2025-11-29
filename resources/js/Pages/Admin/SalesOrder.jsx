@@ -25,7 +25,6 @@ import {
     Search,
     Filter,
     X,
-    Calendar,
 } from "lucide-react";
 import AppPagination from "@/components/AppPagination";
 import DeleteDialog from "@/components/Modal/Admin/DeleteDialog";
@@ -67,9 +66,6 @@ function SalesOrder() {
     const [priceSort, setPriceSort] = useState(
         initialFilters.price_sort || "all"
     );
-    const [dateFilter, setDateFilter] = useState(
-        initialFilters.date_sold || ""
-    );
 
     // Get unique medical representatives for filter
     const medicalReps = [
@@ -95,12 +91,6 @@ function SalesOrder() {
         });
     };
 
-    const formatDateForInput = (dateString) => {
-        if (!dateString) return "";
-        const date = new Date(dateString);
-        return date.toISOString().split("T")[0];
-    };
-
     // Debounced search
     useEffect(() => {
         const timeoutId = setTimeout(() => {
@@ -108,18 +98,15 @@ function SalesOrder() {
         }, 500);
 
         return () => clearTimeout(timeoutId);
-    }, [searchTerm, medRepFilter, statusFilter, priceSort, dateFilter]);
+    }, [searchTerm, medRepFilter, statusFilter, priceSort]);
 
     const applyFilters = () => {
         const filters = {};
 
         if (searchTerm) filters.search = searchTerm;
-        if (medRepFilter && medRepFilter !== "all")
-            filters.med_rep = medRepFilter;
-        if (statusFilter && statusFilter !== "all")
-            filters.status = statusFilter;
-        if (priceSort && priceSort !== "all") filters.price_sort = priceSort;
-        if (dateFilter) filters.date_sold = dateFilter;
+        if (medRepFilter) filters.med_rep = medRepFilter;
+        if (statusFilter) filters.status = statusFilter;
+        if (priceSort) filters.price_sort = priceSort;
 
         router.get(route("sales.order.index"), filters, {
             preserveState: true,
@@ -132,7 +119,6 @@ function SalesOrder() {
         setMedRepFilter("all");
         setStatusFilter("all");
         setPriceSort("all");
-        setDateFilter("");
         router.get(
             route("sales.order.index"),
             {},
@@ -147,8 +133,7 @@ function SalesOrder() {
         searchTerm ||
         medRepFilter !== "all" ||
         statusFilter !== "all" ||
-        priceSort !== "all" ||
-        dateFilter;
+        priceSort !== "all";
 
     return (
         <AuthenticatedLayout>
@@ -183,7 +168,7 @@ function SalesOrder() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                             {/* Search Input */}
                             <div className="lg:col-span-2">
                                 <div className="relative">
@@ -267,19 +252,6 @@ function SalesOrder() {
                                     </SelectItem>
                                 </SelectContent>
                             </Select>
-
-                            {/* Date Filter */}
-                            <div className="relative">
-                                <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                                <Input
-                                    type="date"
-                                    value={dateFilter}
-                                    onChange={(e) =>
-                                        setDateFilter(e.target.value)
-                                    }
-                                    className="pl-9"
-                                />
-                            </div>
                         </div>
 
                         {/* Active Filters Indicator */}
