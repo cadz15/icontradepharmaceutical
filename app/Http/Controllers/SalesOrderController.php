@@ -46,6 +46,9 @@ class SalesOrderController extends Controller
                 $query->oldest('total');
             }
         })
+        ->when($priceSort == "all", function($query) {
+            $query->orderByRaw('STR_TO_DATE(date_sold, "%m/%d/%Y") DESC');
+        })
         ->when($search != "", function($query) use($customerIds, $search){
             $query->where(function($subQuery) use($customerIds, $search) {
                 $subQuery->whereIn('customer_id', $customerIds)
