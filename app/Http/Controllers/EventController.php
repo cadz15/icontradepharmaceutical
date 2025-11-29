@@ -60,7 +60,22 @@ class EventController extends Controller
             'status' => 'required|in:scheduled,completed,cancelled',
         ]);
 
+        $beforeChangeTitle = $event->title != $validated['title'] ? $event->title : "";
+
         $event->update($validated);
+
+        try {
+            //code...
+            MobileNotification::create([
+                'medical_representative_id' => $validated['medical_representative_id'],
+                'title' => 'Admin Updated an event "'. $beforeChangeTitle != "" ? $beforeChangeTitle . '" to "' . $validated['title'] :  $validated['title'].'"',
+                'message' => $validated['title'] . " will be held on " . $validated['event_date'],
+                'type' => 'info',
+                'read' => false
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
 
         return redirect()->back()->with('success', 'Event updated successfully.');
     }

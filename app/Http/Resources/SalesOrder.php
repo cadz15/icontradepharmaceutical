@@ -24,7 +24,7 @@ class SalesOrder extends JsonResource
             'date_sold' => Carbon::parse($this->date_sold)->format('M d, Y'),
             'total' => $this->total,
             'remarks' => $this->remarks,
-            'sync_date' => $this->sync_date,
+            'sync_date' => $this->sync_date ?? now()->format('m/d/Y'),
             'status' => $this->status
         ];
     }

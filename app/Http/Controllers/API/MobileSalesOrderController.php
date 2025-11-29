@@ -58,7 +58,11 @@ class MobileSalesOrderController extends Controller
         $salesItemsIds = [];
 
         try{
-            $salesOrder = SalesOrder::create([
+            $salesOrder = SalesOrder::updateOrCreate([
+                [
+                    'sales_order_number' => $validated['salesOrderNumber'],
+                    'medical_representatative_id' => $request->user()->id,
+                ],
                 'customer_id' => $request->get('customerOnlineId'),
                 'medical_representative_id' => $request->user()->id,
                 'sales_order_number' => $validated['salesOrderNumber'],
@@ -70,7 +74,11 @@ class MobileSalesOrderController extends Controller
             ]);
 
             foreach ($validated['items'] as $item) {
-                $salesItem = SalesOrderItem::create([
+                $salesItem = SalesOrderItem::updateOrCreate([
+                    [
+                        'sales_order_id' => $salesOrder->id,
+                        'item_id' => $item['itemOnlineId'],
+                    ],
                     'sales_order_id' => $salesOrder->id,
                     'item_id' => $item['itemOnlineId'],
                     'quantity' => $item['quantity'],

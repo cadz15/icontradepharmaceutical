@@ -6,6 +6,7 @@ use App\Models\Customer;
 use App\Models\Dcr;
 use App\Models\Event;
 use App\Models\MedicalRepresentative;
+use App\Models\MobileNotification;
 use App\Services\AdminAnalyticsService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -71,6 +72,19 @@ class AdminController extends Controller
 
             $event = Event::create($eventData);
             $createdEvents[] = $event;
+
+            try {
+            //code...
+                MobileNotification::create([
+                    'medical_representative_id' => $medicalRepresentativeId,
+                    'title' => 'New Event has been posted!',
+                    'message' => $validated['title'] . " will be held on " . $validated['event_date'],
+                    'type' => 'info',
+                    'read' => false
+                ]);
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
         }
 
         return redirect()->back()->with('success', count($createdEvents) . ' event(s) created successfully.');
@@ -92,7 +106,22 @@ class AdminController extends Controller
             'status' => 'required|in:scheduled,completed,cancelled',
         ]);
 
+        $beforeChangeTitle = $event->title != $validated['title'] ? $event->title : "";
+
         $event->update($validated);
+
+        try {
+            //code...
+            MobileNotification::create([
+                'medical_representative_id' => $validated['medical_representative_id'],
+                'title' => 'Admin Updated an event "'. $beforeChangeTitle != "" ? $beforeChangeTitle . '" to "' . $validated['title'] :  $validated['title'].'"',
+                'message' => $validated['title'] . " will be held on " . $validated['event_date'],
+                'type' => 'info',
+                'read' => false
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
 
         return redirect()->back()->with('success', 'Event updated successfully.');
     }
