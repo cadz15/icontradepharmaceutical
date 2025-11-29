@@ -8,6 +8,7 @@ use App\Models\MedicalRepresentative;
 use App\Models\MobileNotification;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderItem;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Inertia\Inertia;
@@ -24,6 +25,7 @@ class SalesOrderController extends Controller
         $search = $request->get('search');
         $status = $request->get('status');
         $dateSold = $request->get('date_sold');
+        $dateFilter = $request->get('dateFilter');
         
         $medRepData = MedicalRepresentative::all();
 
@@ -55,6 +57,15 @@ class SalesOrderController extends Controller
         })
         ->when($dateSold, function($query) use($dateSold){
             $query->where('date_sold', $dateSold);
+        })
+        ->when($dateFilter, function($query) use($dateFilter) {
+            $from = Carbon::parse($dateFilter['from'])->startOfDay();
+            $to   = Carbon::parse($dateFilter['to'])->endOfDay();
+
+            $query->whereRaw(
+                'STR_TO_DATE(sales_orders.date_sold, "%m/%d/%Y") BETWEEN ? AND ?',
+                [$from, $to]
+            );
         })
         ->latest()->paginate(15)->withQueryString();
         

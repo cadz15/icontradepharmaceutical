@@ -25,6 +25,7 @@ import {
     Search,
     Filter,
     X,
+    CalendarIcon,
 } from "lucide-react";
 import AppPagination from "@/components/AppPagination";
 import DeleteDialog from "@/components/Modal/Admin/DeleteDialog";
@@ -39,6 +40,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/Components/ui/popover";
+
+import { Calendar } from "@/components/ui/calendar";
 
 const statusVariant = {
     pending: "outline",
@@ -66,6 +74,17 @@ function SalesOrder() {
     const [priceSort, setPriceSort] = useState(
         initialFilters.price_sort || "all"
     );
+    const [dateFilter, setdateFilter] = useState(
+        initialFilters.dateFilter || ""
+    );
+
+    const buttonLabel = dateFilter?.from
+        ? dateFilter.to
+            ? `${formatDateRange(dateFilter.from)} - ${formatDateRange(
+                  dateFilter.to
+              )}`
+            : formatDateRange(dateFilter.from)
+        : "Select date range";
 
     // Get unique medical representatives for filter
     const medicalReps = [
@@ -83,6 +102,17 @@ function SalesOrder() {
         }).format(amount);
     };
 
+    function formatDateRange(d) {
+        if (!d) return "";
+        let dateNew = new Date(d);
+
+        return dateNew.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+        });
+    }
+
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString("en-US", {
             year: "numeric",
@@ -98,7 +128,7 @@ function SalesOrder() {
         }, 500);
 
         return () => clearTimeout(timeoutId);
-    }, [searchTerm, medRepFilter, statusFilter, priceSort]);
+    }, [searchTerm, medRepFilter, statusFilter, priceSort, dateFilter]);
 
     const applyFilters = () => {
         const filters = {};
@@ -107,6 +137,7 @@ function SalesOrder() {
         if (medRepFilter) filters.med_rep = medRepFilter;
         if (statusFilter) filters.status = statusFilter;
         if (priceSort) filters.price_sort = priceSort;
+        if (dateFilter) filters.dateFilter = dateFilter;
 
         router.get(route("sales.order.index"), filters, {
             preserveState: true,
@@ -119,6 +150,7 @@ function SalesOrder() {
         setMedRepFilter("all");
         setStatusFilter("all");
         setPriceSort("all");
+        setdateFilter("");
         router.get(
             route("sales.order.index"),
             {},
@@ -252,6 +284,31 @@ function SalesOrder() {
                                     </SelectItem>
                                 </SelectContent>
                             </Select>
+
+                            {/* Date Range Sort */}
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        className="w-[260px] justify-start text-left font-normal"
+                                    >
+                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                        {buttonLabel}
+                                    </Button>
+                                </PopoverTrigger>
+
+                                <PopoverContent
+                                    className="w-auto p-0"
+                                    align="start"
+                                >
+                                    <Calendar
+                                        mode="range"
+                                        selected={dateFilter}
+                                        onSelect={setdateFilter}
+                                        numberOfMonths={2}
+                                    />
+                                </PopoverContent>
+                            </Popover>
                         </div>
 
                         {/* Active Filters Indicator */}
