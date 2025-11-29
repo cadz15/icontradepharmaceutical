@@ -93,6 +93,7 @@ class MobileSalesOrderController extends Controller
                 array_push($salesItemsIds, [$item['id'] => $salesItem->id]);
             }
         }catch(Exception $ex) {
+            Log::error('Error on saving sales order: ', [$ex]);
             return response()->json([
                 'message' => 'Sale order corrupted!',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
