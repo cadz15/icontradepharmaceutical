@@ -61,7 +61,7 @@ class MobileSalesOrderController extends Controller
             $salesOrder = SalesOrder::updateOrCreate(
                 [
                     'sales_order_number' => $validated['salesOrderNumber'],
-                    'medical_representatative_id' => $request->user()->id,
+                    'medical_representative_id' => $request->user()->id,
                 ],
                 [
                     'customer_id' => $request->get('customerOnlineId'),
